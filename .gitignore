@@ -1,0 +1,16 @@
+# OS cruft
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# stray diagnostic file (0 bytes, can't be removed from this mount)
+sizetest.txt
+
+# obsolete placeholder mockups (superseded by real product photos)
+images/coin.svg
+images/hat.svg
+images/hoodie.svg
+images/keychain.svg
+images/sticker.svg
+images/tee.svg
+images/tumbler.svg

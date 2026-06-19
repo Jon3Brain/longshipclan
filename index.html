@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Longship Clan</title>
+<meta name="description" content="Longship Clan — coins, medallions, and pendants. Bound by the brotherhood." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#2C2C2C; --bg-darker:#1F1B19; --bg-near-black:#100D0E; --panel:#241F1D;
+  --accent:#E35205; --accent-hi:#FF6A1A; --text:#FFFFFF; --muted:#C1C0C0; --line:#3a3330;
+  --head:'Oswald', sans-serif; --body:'Arial', 'Helvetica Neue', sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,.head{font-family:var(--head);text-transform:uppercase;font-weight:700;letter-spacing:.04em;line-height:1.05}
+a{color:var(--accent);text-decoration:none}
+a:hover{color:var(--accent-hi)}
+img{max-width:100%;display:block}
+.container{max-width:1140px;margin:0 auto;padding:0 22px}
+
+header{position:sticky;top:0;z-index:50;background:var(--bg-near-black);border-bottom:2px solid var(--accent)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:70px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand .mark{width:42px;height:42px;border:2px solid var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--head);font-weight:700;color:var(--accent);font-size:20px}
+.brand .name{font-family:var(--head);font-weight:700;font-size:24px;letter-spacing:.06em}
+.brand .name span{color:var(--accent)}
+.nav-links{display:flex;align-items:center;gap:26px}
+.nav-links a{color:var(--accent);font-family:var(--head);text-transform:uppercase;font-size:15px;letter-spacing:.05em;font-weight:600}
+.nav-links a.plain{color:var(--text)}
+.cart-btn{background:transparent;border:2px solid var(--accent);color:var(--accent);font-family:var(--head);text-transform:uppercase;font-weight:600;letter-spacing:.05em;padding:8px 16px;cursor:pointer;font-size:14px;display:flex;align-items:center;gap:8px}
+.cart-btn:hover{background:var(--accent);color:#100D0E}
+.cart-count{background:var(--accent);color:#100D0E;border-radius:50%;min-width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;padding:0 5px}
+.cart-btn:hover .cart-count{background:#100D0E;color:var(--accent)}
+
+.hero{position:relative;padding:96px 0 84px;text-align:center;background:linear-gradient(rgba(16,13,14,.86),rgba(16,13,14,.92)),repeating-linear-gradient(45deg,#1a1614 0 22px,#161210 22px 44px);border-bottom:1px solid var(--line)}
+.hero h1{font-size:clamp(44px,8vw,86px);margin:0 0 8px}
+.hero h1 .ln{display:block}
+.hero .accent{color:var(--accent)}
+.hero p.tag{color:var(--muted);font-size:18px;max-width:620px;margin:14px auto 30px;font-style:italic}
+.btn{display:inline-block;background:var(--accent);color:#100D0E;font-family:var(--head);text-transform:uppercase;font-weight:700;letter-spacing:.06em;padding:14px 32px;font-size:16px;cursor:pointer;border:2px solid var(--accent);transition:.15s}
+.btn:hover{background:transparent;color:var(--accent)}
+
+section{padding:64px 0}
+.section-head{border-left:5px solid var(--accent);padding-left:18px;margin-bottom:38px}
+.section-head h2{font-size:clamp(30px,5vw,44px);color:var(--accent)}
+.section-head p{color:var(--muted);margin-top:6px;max-width:680px}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px}
+.cat-block{margin-bottom:46px}
+.cat-block:last-child{margin-bottom:0}
+.cat-head{font-family:var(--head);text-transform:uppercase;font-size:26px;color:var(--text);border-bottom:2px solid var(--accent);padding-bottom:8px;margin-bottom:22px;letter-spacing:.08em}
+.card{background:var(--panel);border:1px solid var(--line);display:flex;flex-direction:column;transition:.15s}
+.card:hover{border-color:var(--accent);transform:translateY(-3px)}
+.card .thumb{aspect-ratio:1/1;background:var(--bg-near-black);display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line);overflow:hidden;position:relative}
+.card .thumb img{width:100%;height:100%;object-fit:cover}
+.card .thumb .ph{font-family:var(--head);color:#5a4f4a;font-size:13px;letter-spacing:.2em;text-transform:uppercase;text-align:center;padding:0 12px}
+.card .tag-badge{position:absolute;top:10px;left:10px;background:var(--accent);color:#100D0E;font-family:var(--head);font-size:11px;font-weight:700;letter-spacing:.1em;padding:3px 9px;text-transform:uppercase;z-index:2}
+.card .thumb .flip{position:absolute;bottom:10px;right:10px;background:rgba(16,13,14,.82);border:1px solid var(--accent);color:var(--accent);font-family:var(--head);text-transform:uppercase;font-size:11px;font-weight:600;letter-spacing:.08em;padding:5px 10px;cursor:pointer;z-index:2}
+.card .thumb .flip:hover{background:var(--accent);color:#100D0E}
+.card .body{padding:16px 16px 18px;display:flex;flex-direction:column;flex:1}
+.card h3{font-size:20px;margin-bottom:4px}
+.card .desc{color:var(--muted);font-size:14px;margin-bottom:12px;flex:1}
+.card .price{font-family:var(--head);font-size:24px;color:var(--accent);font-weight:700;margin-bottom:12px}
+.card select{width:100%;background:var(--bg-near-black);color:var(--text);border:1px solid var(--line);padding:9px 10px;font-family:var(--body);font-size:14px;margin-bottom:10px}
+.card .add{width:100%;background:transparent;border:2px solid var(--accent);color:var(--accent);font-family:var(--head);text-transform:uppercase;font-weight:600;letter-spacing:.05em;padding:11px;cursor:pointer;font-size:15px;transition:.15s}
+.card .add:hover{background:var(--accent);color:#100D0E}
+
+.about{background:var(--bg-darker);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.about .section-head h2{color:var(--accent)}
+.about p{color:var(--muted);max-width:760px;font-size:16px}
+.about p strong{color:var(--text)}
+
+footer{background:var(--bg-near-black);border-top:2px solid var(--accent);padding:42px 0 30px;text-align:center}
+footer .name{font-family:var(--head);font-size:26px;font-weight:700;letter-spacing:.08em}
+footer .name span{color:var(--accent)}
+footer .credo{color:var(--accent);font-family:var(--head);text-transform:uppercase;letter-spacing:.15em;margin:10px 0 16px;font-size:15px}
+footer .small{color:#7c726d;font-size:13px;line-height:1.8}
+footer .pay-line{color:var(--muted);font-size:14px;margin-bottom:10px}
+
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);opacity:0;visibility:hidden;transition:.2s;z-index:60}
+.overlay.open{opacity:1;visibility:visible}
+.drawer{position:fixed;top:0;right:0;height:100%;width:400px;max-width:92vw;background:var(--bg-darker);z-index:70;transform:translateX(100%);transition:.25s;display:flex;flex-direction:column;border-left:2px solid var(--accent)}
+.drawer.open{transform:translateX(0)}
+.drawer .d-head{display:flex;align-items:center;justify-content:space-between;padding:20px;border-bottom:1px solid var(--line)}
+.drawer .d-head h3{color:var(--accent);font-size:22px}
+.drawer .close{background:none;border:none;color:var(--text);font-size:28px;cursor:pointer;line-height:1}
+.drawer .close:hover{color:var(--accent)}
+.d-items{flex:1;overflow-y:auto;padding:14px 20px}
+.d-empty{color:var(--muted);text-align:center;margin-top:40px;font-style:italic}
+.line-item{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.line-item .li-info{flex:1}
+.line-item .li-name{font-family:var(--head);font-size:16px;text-transform:uppercase;letter-spacing:.03em}
+.line-item .li-sub{color:var(--muted);font-size:13px}
+.line-item .li-price{font-family:var(--head);color:var(--accent);font-weight:600}
+.qty{display:flex;align-items:center;gap:8px;margin-top:6px}
+.qty button{width:24px;height:24px;background:var(--bg-near-black);border:1px solid var(--line);color:var(--text);cursor:pointer;font-size:16px;line-height:1}
+.qty button:hover{border-color:var(--accent);color:var(--accent)}
+.qty .remove{margin-left:auto;color:#7c726d;font-size:12px;cursor:pointer;background:none;border:none;text-transform:uppercase;letter-spacing:.05em}
+.qty .remove:hover{color:var(--accent)}
+.d-foot{padding:18px 20px;border-top:1px solid var(--line)}
+.d-total{display:flex;justify-content:space-between;font-family:var(--head);font-size:20px;text-transform:uppercase;margin-bottom:14px}
+.d-total span:last-child{color:var(--accent)}
+.d-foot .btn{width:100%;text-align:center}
+.d-foot .note{color:var(--muted);font-size:12px;text-align:center;margin-top:10px}
+
+.modal{position:fixed;inset:0;z-index:80;display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
+.modal.open{display:flex}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.78)}
+.modal-card{position:relative;background:var(--bg-darker);border:1px solid var(--accent);max-width:620px;width:100%;padding:0;z-index:1}
+.modal-card .m-head{padding:22px 26px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.modal-card .m-head h3{color:var(--accent);font-size:24px}
+.modal-card .m-body{padding:24px 26px}
+.modal-card .close{background:none;border:none;color:var(--text);font-size:28px;cursor:pointer;line-height:1}
+.field{margin-bottom:16px}
+.field label{display:block;font-family:var(--head);text-transform:uppercase;font-size:13px;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+.field input,.field textarea{width:100%;background:var(--bg-near-black);border:1px solid var(--line);color:var(--text);padding:11px 12px;font-family:var(--body);font-size:15px}
+.field input:focus,.field textarea:focus{outline:none;border-color:var(--accent)}
+.row{display:flex;gap:14px}
+.row .field{flex:1}
+.order-review{background:var(--bg-near-black);border:1px solid var(--line);padding:14px 16px;margin-bottom:18px}
+.order-review .or-line{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;color:var(--muted)}
+.order-review .or-total{display:flex;justify-content:space-between;font-family:var(--head);text-transform:uppercase;border-top:1px solid var(--line);margin-top:8px;padding-top:10px;font-size:18px}
+.order-review .or-total span:last-child{color:var(--accent)}
+.modal-card .btn{width:100%;text-align:center;border:none}
+
+.confirm h4{font-family:var(--head);text-transform:uppercase;color:var(--accent);font-size:20px;margin-bottom:8px}
+.confirm p{color:var(--muted);font-size:15px;margin-bottom:16px}
+.pay-options{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
+.pay-card{background:var(--bg-near-black);border:1px solid var(--line);padding:14px;text-align:center}
+.pay-card .pl{font-family:var(--head);text-transform:uppercase;color:var(--accent);font-size:14px;letter-spacing:.05em;margin-bottom:6px}
+.pay-card .pv{font-size:15px;word-break:break-all}
+.pay-card a.btn{display:inline-block;width:auto;padding:8px 16px;font-size:13px;margin-top:4px}
+.copy-box{background:var(--bg-near-black);border:1px solid var(--line);padding:14px;font-size:13px;color:var(--muted);white-space:pre-wrap;max-height:160px;overflow-y:auto;margin-bottom:14px;font-family:monospace}
+
+@media(max-width:680px){
+  .nav-links{gap:14px}
+  .nav-links a:not(.cart-wrap){display:none}
+  .row{flex-direction:column;gap:0}
+  .pay-options{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <div class="brand">
+      <div class="mark">LC</div>
+      <div class="name">LONGSHIP <span>CLAN</span></div>
+    </div>
+    <nav class="nav-links">
+      <a href="#store">Store</a>
+      <a href="#about" class="plain">About</a>
+      <button class="cart-btn" onclick="openCart()">Cart <span class="cart-count" id="cartCount">0</span></button>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <h1><span class="ln">LONGSHIP</span><span class="ln accent">CLAN</span></h1>
+    <p class="tag">Bound by the brotherhood. Built on loyalty, honor, and the roar of the open road.</p>
+    <a href="#store" class="btn">Shop the Store</a>
+  </div>
+</section>
+
+<section id="store">
+  <div class="container">
+    <div class="section-head">
+      <h2>The Armory</h2>
+      <p>Coins, medallions, and pendants. Pick your pieces, then check out — we'll gather your details and send payment options.</p>
+    </div>
+    <div id="productGrid"></div>
+  </div>
+</section>
+
+<section id="about" class="about">
+  <div class="container">
+    <div class="section-head"><h2>The Clan</h2></div>
+    <p><strong>Longship Clan</strong> is one of many in the Iron Vikings Motorcycle Club. See <a href="https://ironvikingsmc.com" target="_blank" rel="noopener">ironvikingsmc.com</a> for more information.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="name">LONGSHIP <span>CLAN</span></div>
+    <div class="credo">Respect All · Fear None</div>
+    <div class="pay-line">We accept Square · PayPal · Venmo · Cash App</div>
+    <div class="small">
+      &copy; <span id="year"></span> Longship Clan. All rights reserved.<br/>
+      Questions about an order? Email <a href="mailto:orders@longshipclan.com">orders@longshipclan.com</a>
+    </div>
+  </div>
+</footer>
+
+<div class="overlay" id="overlay" onclick="closeCart()"></div>
+<aside class="drawer" id="drawer">
+  <div class="d-head"><h3>Your Cart</h3><button class="close" onclick="closeCart()">&times;</button></div>
+  <div class="d-items" id="cartItems"></div>
+  <div class="d-foot">
+    <div class="d-total"><span>Total</span><span id="cartTotal">$0</span></div>
+    <button class="btn" onclick="openCheckout()">Checkout</button>
+    <div class="note">No payment is taken on this site. You'll send your order and pay by your choice of Square, PayPal, Venmo, or Cash App.</div>
+  </div>
+</aside>
+
+<div class="modal" id="modal">
+  <div class="modal-bg" onclick="closeCheckout()"></div>
+  <div class="modal-card">
+    <div class="m-head"><h3 id="modalTitle">Checkout</h3><button class="close" onclick="closeCheckout()">&times;</button></div>
+    <div class="m-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   EDIT THIS BLOCK — everything you need to update is right here
+   ============================================================ */
+const STORE = {
+  orderEmail: "orders@longshipclan.com",        // <-- CHANGE to your real club email
+  payment: {
+    square:  "",                                  // <-- paste your Square checkout/payment link
+    paypal:  "",                                  // <-- e.g. https://paypal.me/longshipclan
+    venmo:   "@LongshipClan",                     // <-- your Venmo handle
+    cashapp: "$LongshipClan"                      // <-- your Cash App $cashtag
+  },
+  // Product fields:
+  //   cat:    "swag" | "wear" | "gear"  (groups items into sections)
+  //   img:    main (front) photo
+  //   imgBack:(optional) back photo -> adds a "View Back" flip button
+  //   colors: (optional) [{name, img}] -> adds a color picker that swaps the photo
+  //   sizes:  (optional) ["S","M",...] for apparel
+  products: [
+    { id:"coin", cat:"swag", name:"Longship Clan Coin", price:40, badge:"Coin",
+      img:"images/coin_front.jpg", imgBack:"images/coin_back.jpg",
+      desc:"Two-sided Longship Clan / Iron Vikings MC challenge coin. Price includes shipping." },
+
+    { id:"hammer", cat:"swag", name:"Hammer Pendant", price:30, badge:"Limited",
+      img:"images/hammer_front.jpg", imgBack:"images/hammer_back.jpg",
+      desc:"UV-print Mjolnir hammer pendant. Limited stock — only about 14 left." },
+
+    { id:"valkyrie", cat:"swag", name:"Valkyrie Pendant", price:35, badge:"Pendant",
+      img:"images/valkyrie_front.jpg", imgBack:"images/valkyrie_back.jpg",
+      desc:"Winged Valkyrie pendant — Tree of Life on one side, Valknut on the other. Price includes shipping." },
+
+    { id:"med2", cat:"swag", name:"2\" Iron Vikings Nomad Medallion", price:15, badge:"2 inch",
+      img:"images/medallion2_front.jpg",
+      desc:"2-inch cast-metal medallion. $15 each, or 5 for $60 (note the quantity at checkout)." },
+
+    { id:"med1", cat:"swag", name:"1\" Iron Vikings Nomad Medallion", price:10, badge:"1 inch",
+      img:"images/medallion1_silver.jpg",
+      colors:[{name:"Silver",img:"images/medallion1_silver.jpg"},{name:"Black",img:"images/medallion1_black.jpg"}],
+      desc:"1-inch cast-metal medallion in silver or black. $10 each, or 5 for $40 (note the quantity at checkout)." }
+  ]
+};
+/* ============ END EDIT BLOCK ============ */
+
+const fmt = n => "$" + (Math.round(n*100)/100).toFixed(2).replace(/\.00$/,"");
+let cart = [];
+try { cart = JSON.parse(localStorage.getItem("lc_cart_v2")) || []; } catch(e){ cart = []; }
+const save = () => { try{ localStorage.setItem("lc_cart_v2", JSON.stringify(cart)); }catch(e){} };
+
+document.getElementById("year").textContent = new Date().getFullYear();
+
+const CATEGORIES = [
+  { key:"swag", label:"Swag" },
+  { key:"wear", label:"Wear" },
+  { key:"gear", label:"Gear" }
+];
+function cardHTML(p){
+  const front = p.colors ? p.colors[0].img : p.img;
+  const imgEl = `<img class="pimg" id="pimg-${p.id}" src="${front}" alt="${p.name}" data-front="${front}" data-back="${p.imgBack||''}" data-side="front" onerror="this.style.display='none';this.parentNode.innerHTML='<div class=ph>Photo coming soon</div>'">`;
+  const flip = p.imgBack ? `<button class="flip" onclick="flipImg('${p.id}')">View Back</button>` : "";
+  let opt = "";
+  if(p.sizes){
+    opt = `<select id="opt-${p.id}" data-label="Size">${p.sizes.map(s=>`<option value="${s}">Size: ${s}</option>`).join("")}</select>`;
+  } else if(p.colors){
+    opt = `<select id="opt-${p.id}" data-label="Color" onchange="swapColor('${p.id}')">${p.colors.map(c=>`<option value="${c.name}" data-img="${c.img}">Color: ${c.name}</option>`).join("")}</select>`;
+  }
+  return `<div class="card">
+    <div class="thumb">${p.badge?`<span class="tag-badge">${p.badge}</span>`:""}${imgEl}${flip}</div>
+    <div class="body">
+      <h3>${p.name}</h3>
+      <div class="desc">${p.desc||""}</div>
+      <div class="price">${fmt(p.price)}</div>
+      ${opt}
+      <button class="add" onclick="addToCart('${p.id}')">Add to Cart</button>
+    </div>
+  </div>`;
+}
+function renderProducts(){
+  const g = document.getElementById("productGrid");
+  g.innerHTML = CATEGORIES.map(cat => {
+    const items = STORE.products.filter(p => p.cat === cat.key);
+    if(!items.length) return "";
+    return `<div class="cat-block"><h3 class="cat-head">${cat.label}</h3><div class="grid">${items.map(cardHTML).join("")}</div></div>`;
+  }).join("");
+}
+function flipImg(id){
+  const img=document.getElementById("pimg-"+id);
+  const toBack = img.dataset.side!=="back";
+  img.src = toBack ? img.dataset.back : img.dataset.front;
+  img.dataset.side = toBack ? "back" : "front";
+  const btn=img.parentNode.querySelector(".flip");
+  if(btn) btn.textContent = toBack ? "View Front" : "View Back";
+}
+function swapColor(id){
+  const sel=document.getElementById("opt-"+id);
+  const img=document.getElementById("pimg-"+id);
+  const src=sel.options[sel.selectedIndex].dataset.img;
+  img.src=src; img.dataset.front=src; img.dataset.side="front";
+}
+
+function addToCart(id){
+  const p = STORE.products.find(x=>x.id===id);
+  const sel = document.getElementById("opt-"+id);
+  const opt = sel ? sel.value : null;
+  const optLabel = sel ? sel.dataset.label : null;
+  const key = id + (opt?("|"+opt):"");
+  const existing = cart.find(c=>c.key===key);
+  if(existing){ existing.qty++; }
+  else { cart.push({key, id, name:p.name, price:p.price, opt, optLabel, qty:1}); }
+  save(); renderCart(); openCart();
+}
+function changeQty(key, d){
+  const it = cart.find(c=>c.key===key); if(!it) return;
+  it.qty += d; if(it.qty<=0) cart = cart.filter(c=>c.key!==key);
+  save(); renderCart();
+}
+function removeItem(key){ cart = cart.filter(c=>c.key!==key); save(); renderCart(); }
+const cartTotal = () => cart.reduce((s,c)=>s+c.price*c.qty,0);
+
+function renderCart(){
+  document.getElementById("cartCount").textContent = cart.reduce((s,c)=>s+c.qty,0);
+  document.getElementById("cartTotal").textContent = fmt(cartTotal());
+  const box = document.getElementById("cartItems");
+  if(!cart.length){ box.innerHTML = `<div class="d-empty">Your cart is empty.</div>`; return; }
+  box.innerHTML = cart.map(c=>`
+    <div class="line-item">
+      <div class="li-info">
+        <div class="li-name">${c.name}</div>
+        ${c.opt?`<div class="li-sub">${c.optLabel||"Option"}: ${c.opt}</div>`:""}
+        <div class="li-price">${fmt(c.price)} each</div>
+        <div class="qty">
+          <button onclick="changeQty('${c.key}',-1)">&minus;</button>
+          <span>${c.qty}</span>
+          <button onclick="changeQty('${c.key}',1)">+</button>
+          <button class="remove" onclick="removeItem('${c.key}')">Remove</button>
+        </div>
+      </div>
+    </div>`).join("");
+}
+
+function openCart(){ document.getElementById("drawer").classList.add("open"); document.getElementById("overlay").classList.add("open"); }
+function closeCart(){ document.getElementById("drawer").classList.remove("open"); document.getElementById("overlay").classList.remove("open"); }
+
+function openCheckout(){
+  if(!cart.length){ alert("Your cart is empty."); return; }
+  closeCart();
+  document.getElementById("modalTitle").textContent = "Checkout";
+  document.getElementById("modalBody").innerHTML = checkoutFormHTML();
+  document.getElementById("modal").classList.add("open");
+}
+function closeCheckout(){ document.getElementById("modal").classList.remove("open"); }
+
+function orderReviewHTML(){
+  const lines = cart.map(c=>`<div class="or-line"><span>${c.qty} × ${c.name}${c.opt?(" ("+c.opt+")"):""}</span><span>${fmt(c.price*c.qty)}</span></div>`).join("");
+  return `<div class="order-review">${lines}<div class="or-total"><span>Total</span><span>${fmt(cartTotal())}</span></div></div>`;
+}
+function checkoutFormHTML(){
+  return `
+    ${orderReviewHTML()}
+    <div class="row">
+      <div class="field"><label>First Name</label><input id="f_first" /></div>
+      <div class="field"><label>Last Name</label><input id="f_last" /></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Email</label><input id="f_email" type="email" /></div>
+      <div class="field"><label>Phone</label><input id="f_phone" /></div>
+    </div>
+    <div class="field"><label>Shipping Address</label><input id="f_addr" placeholder="Street address" /></div>
+    <div class="row">
+      <div class="field"><label>City</label><input id="f_city" /></div>
+      <div class="field"><label>State</label><input id="f_state" /></div>
+      <div class="field"><label>ZIP</label><input id="f_zip" /></div>
+    </div>
+    <div class="field"><label>Notes (optional)</label><textarea id="f_notes" rows="2" placeholder="Anything we should know?"></textarea></div>
+    <button class="btn" onclick="placeOrder()">Place Order</button>
+  `;
+}
+function buildOrderText(info){
+  let t = "LONGSHIP CLAN — NEW ORDER\n============================\n\nITEMS:\n";
+  cart.forEach(c=>{ t += `  ${c.qty} x ${c.name}${c.opt?(" ("+c.opt+")"):""}  —  ${fmt(c.price*c.qty)}\n`; });
+  t += `\nTOTAL: ${fmt(cartTotal())}\n\nSHIP TO:\n  ${info.first} ${info.last}\n  ${info.addr}\n  ${info.city}, ${info.state} ${info.zip}\n\nCONTACT:\n  Email: ${info.email}\n  Phone: ${info.phone}\n`;
+  if(info.notes) t += `\nNOTES:\n  ${info.notes}\n`;
+  return t;
+}
+function placeOrder(){
+  const info = {first:val("f_first"),last:val("f_last"),email:val("f_email"),phone:val("f_phone"),addr:val("f_addr"),city:val("f_city"),state:val("f_state"),zip:val("f_zip"),notes:val("f_notes")};
+  if(!info.first || !info.email){ alert("Please enter at least your name and email."); return; }
+  const orderText = buildOrderText(info);
+  const subject = encodeURIComponent(`Longship Clan Order — ${info.first} ${info.last}`);
+  const body = encodeURIComponent(orderText + "\n(Sent from longshipclan.com)");
+  window.location.href = `mailto:${STORE.orderEmail}?subject=${subject}&body=${body}`;
+  showConfirmation(orderText);
+}
+function val(id){ const e=document.getElementById(id); return e? e.value.trim() : ""; }
+
+function showConfirmation(orderText){
+  const p = STORE.payment; const total = fmt(cartTotal()); let pays = "";
+  if(p.square)  pays += payCard("Square",   p.square,  true,  "Pay with Square");
+  if(p.paypal)  pays += payCard("PayPal",   p.paypal,  true,  "Pay with PayPal");
+  if(p.venmo)   pays += payCard("Venmo",    p.venmo,   false);
+  if(p.cashapp) pays += payCard("Cash App", p.cashapp, false);
+  document.getElementById("modalTitle").textContent = "Order Started";
+  document.getElementById("modalBody").innerHTML = `
+    <div class="confirm">
+      <h4>Almost done — send your payment</h4>
+      <p>Your email app should have opened with your order. If it didn't, copy the order below and email it to <a href="mailto:${STORE.orderEmail}">${STORE.orderEmail}</a>. Then pay your <strong>${total}</strong> using any option below.</p>
+      <div class="pay-options">${pays || '<div class="pay-card"><div class="pl">Contact</div><div class="pv">'+STORE.orderEmail+'</div></div>'}</div>
+      <div class="copy-box" id="copyBox">${orderText.replace(/</g,"&lt;")}</div>
+      <button class="btn" onclick="copyOrder()">Copy Order Details</button>
+    </div>`;
+  cart = []; save(); renderCart();
+}
+function payCard(label, value, isLink, btnText){
+  if(isLink){ return `<div class="pay-card"><div class="pl">${label}</div><a class="btn" href="${value}" target="_blank" rel="noopener">${btnText||"Pay"}</a></div>`; }
+  return `<div class="pay-card"><div class="pl">${label}</div><div class="pv">${value}</div></div>`;
+}
+function copyOrder(){
+  const t = document.getElementById("copyBox").innerText;
+  navigator.clipboard.writeText(t).then(()=>{ alert("Order details copied."); }).catch(()=>{});
+}
+
+renderProducts();
+renderCart();
+</script>
+</body>
+</html>
