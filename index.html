@@ -435,4 +435,23 @@ function showConfirmation(orderText){
     <div class="confirm">
       <h4>Almost done — send your payment</h4>
       <p>Your email app should have opened with your order. If it didn't, copy the order below and email it to <a href="mailto:${STORE.orderEmail}">${STORE.orderEmail}</a>. Then pay your <strong>${total}</strong> using any option below.</p>
-      <div class="pay-options">${pays || '<div class="pay-card"><div class="pl">Contact</div><div class="pv">'+STORE.ord
+      <div class="pay-options">${pays || '<div class="pay-card"><div class="pl">Contact</div><div class="pv">'+STORE.orderEmail+'</div></div>'}</div>
+      <div class="copy-box" id="copyBox">${orderText.replace(/</g,"&lt;")}</div>
+      <button class="btn" onclick="copyOrder()">Copy Order Details</button>
+    </div>`;
+  cart = []; save(); renderCart();
+}
+function payCard(label, value, isLink, btnText){
+  if(isLink){ return `<div class="pay-card"><div class="pl">${label}</div><a class="btn" href="${value}" target="_blank" rel="noopener">${btnText||"Pay"}</a></div>`; }
+  return `<div class="pay-card"><div class="pl">${label}</div><div class="pv">${value}</div></div>`;
+}
+function copyOrder(){
+  const t = document.getElementById("copyBox").innerText;
+  navigator.clipboard.writeText(t).then(()=>{ alert("Order details copied."); }).catch(()=>{});
+}
+
+renderProducts();
+renderCart();
+</script>
+</body>
+</html>
