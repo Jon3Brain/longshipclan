@@ -47,9 +47,9 @@ img{max-width:100%;display:block}
 /* ---- Members content ---- */
 header{background:var(--bg-near-black);border-bottom:2px solid var(--accent)}
 .nav{display:flex;align-items:center;justify-content:space-between;height:70px;gap:12px}
-.brand{display:flex;align-items:center;gap:12px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;cursor:pointer}
 .brand img{width:46px;height:46px;border:2px solid var(--accent);border-radius:50%;background:#ECEAE2}
-.brand .name{font-family:var(--head);font-weight:700;font-size:22px;letter-spacing:.06em}
+.brand .name{font-family:var(--head);font-weight:700;font-size:22px;letter-spacing:.06em;color:var(--text)}
 .brand .name span{color:var(--accent)}
 .nav a{font-family:var(--head);text-transform:uppercase;font-size:14px;letter-spacing:.05em}
 .page-head{padding:54px 0 8px;text-align:center}
@@ -96,10 +96,10 @@ footer .small{color:#7c726d;font-size:13px}
 
   <header>
     <div class="container nav">
-      <div class="brand">
+      <a class="brand" href="/">
         <img src="/images/clan-emblem.png" alt="Longship Clan emblem" />
         <div class="name">LONGSHIP <span>CLAN</span></div>
-      </div>
+      </a>
       <div style="display:flex;align-items:center;gap:14px">
         <a href="/">Public Store</a>
         <button class="lockbtn" onclick="lock()">Lock</button>
