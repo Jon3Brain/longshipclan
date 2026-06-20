@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Longship Clan — Brothers</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="icon" href="/favicon.ico" sizes="any" />
+<style>
+@font-face{
+  font-family:'Viking';
+  src:url('/fonts/viking.ttf') format('truetype');
+  font-weight:normal;font-style:normal;font-display:swap;
+}
+:root{
+  --bg:#2C2C2C; --bg-darker:#1F1B19; --bg-near-black:#100D0E; --panel:#241F1D;
+  --accent:#E35205; --accent-hi:#FF6A1A; --text:#FFFFFF; --muted:#C1C0C0; --line:#3a3330;
+  --head:'Viking','Oswald',sans-serif; --body:'Arial','Helvetica Neue',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--head);text-transform:uppercase;letter-spacing:.04em;line-height:1.05}
+a{color:var(--accent);text-decoration:none}
+a:hover{color:var(--accent-hi)}
+img{max-width:100%;display:block}
+.container{max-width:880px;margin:0 auto;padding:0 22px}
+
+/* ---- Password gate ---- */
+.gate{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 22px;
+  background:linear-gradient(rgba(16,13,14,.86),rgba(16,13,14,.94)),repeating-linear-gradient(45deg,#1a1614 0 22px,#161210 22px 44px)}
+.gate .emblem{width:120px;height:120px;border-radius:50%;border:3px solid var(--accent);background:#ECEAE2;margin-bottom:24px}
+.gate h1{font-size:clamp(34px,7vw,56px);color:var(--accent)}
+.gate p{color:var(--muted);margin:10px 0 26px;font-style:italic}
+.gate .box{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.gate input{background:var(--bg-near-black);border:2px solid var(--line);color:var(--text);font-size:20px;letter-spacing:.3em;
+  text-align:center;padding:12px 16px;width:200px;font-family:var(--head)}
+.gate input:focus{outline:none;border-color:var(--accent)}
+.gate button{background:var(--accent);color:#100D0E;font-family:var(--head);text-transform:uppercase;font-weight:700;
+  letter-spacing:.06em;padding:12px 26px;font-size:16px;border:2px solid var(--accent);cursor:pointer;transition:.15s}
+.gate button:hover{background:transparent;color:var(--accent)}
+.gate .err{color:var(--accent-hi);min-height:22px;margin-top:14px;font-family:var(--head);text-transform:uppercase;letter-spacing:.05em;font-size:14px}
+.shake{animation:shake .35s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+
+/* ---- Members content ---- */
+header{background:var(--bg-near-black);border-bottom:2px solid var(--accent)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:70px;gap:12px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand img{width:46px;height:46px;border:2px solid var(--accent);border-radius:50%;background:#ECEAE2}
+.brand .name{font-family:var(--head);font-weight:700;font-size:22px;letter-spacing:.06em}
+.brand .name span{color:var(--accent)}
+.nav a{font-family:var(--head);text-transform:uppercase;font-size:14px;letter-spacing:.05em}
+.page-head{padding:54px 0 8px;text-align:center}
+.page-head h1{font-size:clamp(38px,7vw,64px)}
+.page-head h1 span{color:var(--accent)}
+.page-head .sub{color:var(--muted);font-style:italic;margin-top:8px}
+section.block{padding:30px 0;border-bottom:1px solid var(--line)}
+section.block:last-of-type{border-bottom:none}
+.block h2{color:var(--accent);font-size:clamp(24px,4vw,34px);border-left:5px solid var(--accent);padding-left:16px;margin-bottom:16px}
+.card{background:var(--panel);border:1px solid var(--line);padding:20px 22px;margin-bottom:16px}
+.card h3{font-size:20px;margin-bottom:6px}
+.card p{color:var(--muted)}
+.card .big{font-family:var(--head);color:var(--accent);font-size:30px;font-weight:700}
+ul.clean{list-style:none;margin-top:8px}
+ul.clean li{padding:10px 0;border-bottom:1px solid var(--line);color:var(--muted)}
+ul.clean li:last-child{border-bottom:none}
+ul.clean li strong{color:var(--text)}
+.pay-line{color:var(--muted);font-size:15px;margin-top:8px}
+.pay-line strong{color:var(--accent);font-family:var(--head);letter-spacing:.04em}
+footer{background:var(--bg-near-black);border-top:2px solid var(--accent);padding:34px 0;text-align:center;margin-top:10px}
+footer .credo{color:var(--accent);font-family:var(--head);text-transform:uppercase;letter-spacing:.15em;font-size:15px;margin-bottom:10px}
+footer .small{color:#7c726d;font-size:13px}
+.lockbtn{background:none;border:1px solid var(--line);color:var(--muted);font-family:var(--head);text-transform:uppercase;
+  font-size:12px;letter-spacing:.05em;padding:7px 12px;cursor:pointer}
+.lockbtn:hover{border-color:var(--accent);color:var(--accent)}
+</style>
+</head>
+<body>
+
+<!-- ============ PASSWORD GATE ============ -->
+<div class="gate" id="gate">
+  <img class="emblem" src="/images/clan-emblem.png" alt="Longship Clan emblem" />
+  <h1>Brothers Only</h1>
+  <p>Enter the clan code to continue.</p>
+  <div class="box">
+    <input id="pw" type="password" inputmode="numeric" autocomplete="off" placeholder="••••" />
+    <button onclick="unlock()">Enter</button>
+  </div>
+  <div class="err" id="err"></div>
+</div>
+
+<!-- ============ MEMBERS CONTENT (hidden until unlocked) ============ -->
+<div id="members" hidden>
+
+  <header>
+    <div class="container nav">
+      <div class="brand">
+        <img src="/images/clan-emblem.png" alt="Longship Clan emblem" />
+        <div class="name">LONGSHIP <span>CLAN</span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <a href="/">Public Store</a>
+        <button class="lockbtn" onclick="lock()">Lock</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="page-head container">
+    <h1>The <span>Brotherhood</span></h1>
+    <div class="sub">Members-only — keep this code within the clan.</div>
+  </div>
+
+  <div class="container">
+
+    <!-- ====== EDIT BELOW: this is the members-only content ====== -->
+
+    <section class="block">
+      <h2>Clan Dues</h2>
+      <div class="card">
+        <h3>Annual Dues</h3>
+        <div class="big">$00 / year</div>
+        <p>Due each January. <!-- EDIT: set the amount, schedule, and any late terms --></p>
+        <div class="pay-line">Pay by <strong>Venmo</strong> @LongshipClan &nbsp;·&nbsp; <strong>Cash App</strong> $LongshipClan
+          <!-- EDIT: confirm these handles match how you collect dues --></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>Members-Only Items</h2>
+      <ul class="clean">
+        <li><strong>Member item one</strong> — short description and price. <!-- EDIT --></li>
+        <li><strong>Member item two</strong> — short description and price. <!-- EDIT --></li>
+        <li><strong>Member item three</strong> — short description and price. <!-- EDIT --></li>
+      </ul>
+    </section>
+
+    <section class="block">
+      <h2>Announcements</h2>
+      <div class="card">
+        <p><!-- EDIT: post meeting dates, rides, or notes for members here. -->
+        Next meeting and ride details will be posted here.</p>
+      </div>
+    </section>
+
+    <!-- ====== EDIT ABOVE ====== -->
+
+  </div>
+
+  <footer>
+    <div class="container">
+      <div class="credo">Respect All · Fear None · To Be One, Ask One</div>
+      <div class="small">Longship Clan — Iron Vikings MC · Brothers area</div>
+    </div>
+  </footer>
+</div>
+
+<script>
+/* Basic gate — NOT real security. Content is in the page; this only
+   keeps casual visitors out. Change the code below if needed. */
+const CLAN_CODE = "922";
+
+function show(){ document.getElementById("gate").hidden = true; document.getElementById("members").hidden = false; }
+function lock(){ try{ sessionStorage.removeItem("lc_brothers"); }catch(e){} location.reload(); }
+function unlock(){
+  const v = document.getElementById("pw").value.trim();
+  if(v === CLAN_CODE){
+    try{ sessionStorage.setItem("lc_brothers","1"); }catch(e){}
+    show();
+  } else {
+    const err = document.getElementById("err");
+    err.textContent = "Wrong code — try again.";
+    const g = document.getElementById("gate");
+    g.classList.remove("shake"); void g.offsetWidth; g.classList.add("shake");
+    document.getElementById("pw").value = "";
+    document.getElementById("pw").focus();
+  }
+}
+// Stay unlocked for the browser session.
+try{ if(sessionStorage.getItem("lc_brothers")==="1") show(); }catch(e){}
+// Enter key submits.
+document.getElementById("pw").addEventListener("keydown", function(e){ if(e.key==="Enter") unlock(); });
+document.getElementById("pw").focus();
+</script>
+</body>
+</html>
