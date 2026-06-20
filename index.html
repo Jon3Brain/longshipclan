@@ -78,9 +78,12 @@ section{padding:64px 0}
 .card h3{font-size:20px;margin-bottom:4px}
 .card .desc{color:var(--muted);font-size:14px;margin-bottom:12px;flex:1}
 .card .price{font-family:var(--head);font-size:24px;color:var(--accent);font-weight:700;margin-bottom:12px}
+.card .stock{font-family:var(--head);text-transform:uppercase;letter-spacing:.06em;font-size:12px;color:var(--muted);margin-bottom:10px;min-height:14px}
 .card select{width:100%;background:var(--bg-near-black);color:var(--text);border:1px solid var(--line);padding:9px 10px;font-family:var(--body);font-size:14px;margin-bottom:10px}
 .card .add{width:100%;background:transparent;border:2px solid var(--accent);color:var(--accent);font-family:var(--head);text-transform:uppercase;font-weight:600;letter-spacing:.05em;padding:11px;cursor:pointer;font-size:15px;transition:.15s}
 .card .add:hover{background:var(--accent);color:#100D0E}
+.card .add:disabled{opacity:.45;cursor:not-allowed;border-color:var(--line);color:var(--muted)}
+.card .add:disabled:hover{background:transparent;color:var(--muted)}
 
 .about{background:var(--bg-darker);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .about .section-head h2{color:var(--accent)}
@@ -235,6 +238,7 @@ footer .pay-line{color:var(--muted);font-size:14px;margin-bottom:10px}
 const STORE = {
   orderEmail: "orders@longshipclan.com",        // <-- CHANGE to your real club email
   web3formsKey: "743085e7-2e13-4401-bc00-d0244a150eb3", // <-- Web3Forms access key (auto-emails each order to orders@longshipclan.com)
+  apiUrl: "https://script.google.com/macros/s/AKfycbxmp94oTc17acsZALtTf_2JaFF09kIe35T_psfBp4IxIJOxgUczXP5XtWumgRi_7b9mdw/exec", // Google Apps Script — inventory + order ledger
   payment: {
     venmo:   "@LongshipClan",                     // <-- your Venmo handle
     cashapp: "$LongshipClan",                     // <-- your Cash App $cashtag
@@ -252,11 +256,11 @@ const STORE = {
       img:"images/coin_front.jpg", imgBack:"images/coin_back.jpg",
       desc:"Two-sided Longship Clan / Iron Vikings MC challenge coin. Price includes shipping." },
 
-    { id:"hammer", cat:"swag", name:"Hammer Pendant", price:30, badge:"Limited",
+    { id:"hammer", cat:"swag", name:"Hammer Pendant", price:30, badge:"Limited", numbered:true,
       img:"images/hammer_front.jpg", imgBack:"images/hammer_back.jpg",
       desc:"UV-print Mjolnir hammer pendant. Limited stock — only about 14 left." },
 
-    { id:"valkyrie", cat:"swag", name:"Valkyrie Pendant", price:35, badge:"Pendant",
+    { id:"valkyrie", cat:"swag", name:"Valkyrie Pendant", price:35, badge:"Pendant", numbered:true,
       img:"images/valkyrie_front.jpg", imgBack:"images/valkyrie_back.jpg",
       desc:"Winged Valkyrie pendant — Tree of Life on one side, Valknut on the other. Price includes shipping." },
 
@@ -289,7 +293,9 @@ function cardHTML(p){
   const imgEl = `<img class="pimg" id="pimg-${p.id}" src="${front}" alt="${p.name}" data-front="${front}" data-back="${p.imgBack||''}" data-side="front" onerror="this.style.display='none';this.parentNode.innerHTML='<div class=ph>Photo coming soon</div>'">`;
   const flip = p.imgBack ? `<button class="flip" onclick="flipImg('${p.id}')">View Back</button>` : "";
   let opt = "";
-  if(p.sizes){
+  if(p.numbered){
+    opt = `<select id="opt-${p.id}" data-label="Number"><option value="">Loading numbers…</option></select>`;
+  } else if(p.sizes){
     opt = `<select id="opt-${p.id}" data-label="Size">${p.sizes.map(s=>`<option value="${s}">Size: ${s}</option>`).join("")}</select>`;
   } else if(p.colors){
     opt = `<select id="opt-${p.id}" data-label="Color" onchange="swapColor('${p.id}')">${p.colors.map(c=>`<option value="${c.name}" data-img="${c.img}">Color: ${c.name}</option>`).join("")}</select>`;
@@ -300,8 +306,9 @@ function cardHTML(p){
       <h3>${p.name}</h3>
       <div class="desc">${p.desc||""}</div>
       <div class="price">${fmt(p.price)}</div>
+      <div class="stock" id="stock-${p.id}"></div>
       ${opt}
-      <button class="add" onclick="addToCart('${p.id}')">Add to Cart</button>
+      <button class="add" id="add-${p.id}" onclick="addToCart('${p.id}')">Add to Cart</button>
     </div>
   </div>`;
 }
@@ -328,23 +335,81 @@ function swapColor(id){
   img.src=src; img.dataset.front=src; img.dataset.side="front";
 }
 
+/* ---- Live availability: numbered pieces + counted stock ---- */
+let AVAIL = null;
+async function loadAvailability(){
+  if(!STORE.apiUrl) return;
+  try{
+    const res = await fetch(STORE.apiUrl, { method:"GET" });
+    AVAIL = await res.json();
+  }catch(e){ AVAIL = null; }
+  applyAvailability();
+}
+function serialsInCart(id){ return cart.filter(c=>c.id===id).map(c=>Number(c.opt)); }
+function applyAvailability(){
+  STORE.products.forEach(p=>{
+    const a = (AVAIL && AVAIL.products) ? AVAIL.products[p.id] : null;
+    const stockEl = document.getElementById("stock-"+p.id);
+    const addBtn = document.getElementById("add-"+p.id);
+    if(p.numbered){
+      const sel = document.getElementById("opt-"+p.id);
+      if(!sel) return;
+      if(!a){ sel.innerHTML = `<option value="">Numbers unavailable — try later</option>`; if(addBtn) addBtn.disabled=true; return; }
+      const taken = new Set((a.taken||[]).map(Number));
+      const inCart = new Set(serialsInCart(p.id));
+      const free = [];
+      for(let n=a.from; n<=a.to; n++){ if(!taken.has(n) && !inCart.has(n)) free.push(n); }
+      if(free.length===0){
+        sel.innerHTML = `<option value="">Sold out</option>`;
+        if(addBtn){ addBtn.disabled=true; addBtn.textContent="Sold Out"; }
+        if(stockEl) stockEl.textContent="";
+      } else {
+        sel.innerHTML = `<option value="" disabled selected>Pick your number…</option>` + free.map(n=>`<option value="${n}">No. ${n}</option>`).join("");
+        if(addBtn){ addBtn.disabled=false; addBtn.textContent="Add to Cart"; }
+        if(stockEl) stockEl.textContent = `${free.length} of ${a.to-a.from+1} available`;
+      }
+    } else if(a && a.type==="counted"){
+      const inCart = cart.filter(c=>c.id===p.id).reduce((s,c)=>s+c.qty,0);
+      const remaining = a.remaining - inCart;
+      if(stockEl) stockEl.textContent = remaining>0 ? `${remaining} left` : "Sold out";
+      if(addBtn){
+        if(remaining<=0){ addBtn.disabled=true; addBtn.textContent="Sold Out"; }
+        else { addBtn.disabled=false; addBtn.textContent="Add to Cart"; }
+      }
+    }
+  });
+}
+
 function addToCart(id){
   const p = STORE.products.find(x=>x.id===id);
   const sel = document.getElementById("opt-"+id);
   const opt = sel ? sel.value : null;
   const optLabel = sel ? sel.dataset.label : null;
+  if(p.numbered){
+    if(!opt){ alert("Please pick a number first."); return; }
+    const key = id + "|" + opt;
+    if(cart.find(c=>c.key===key)) return;        // each number can only be in the cart once
+    cart.push({key, id, name:p.name, price:p.price, opt, optLabel:"Number", qty:1, numbered:true});
+    save(); applyAvailability(); renderCart(); openCart();
+    return;
+  }
   const key = id + (opt?("|"+opt):"");
   const existing = cart.find(c=>c.key===key);
   if(existing){ existing.qty++; }
   else { cart.push({key, id, name:p.name, price:p.price, opt, optLabel, qty:1}); }
-  save(); renderCart(); openCart();
+  save(); applyAvailability(); renderCart(); openCart();
 }
 function changeQty(key, d){
   const it = cart.find(c=>c.key===key); if(!it) return;
+  if(it.numbered) return;                        // numbered pieces are always qty 1
+  if(d>0 && AVAIL && AVAIL.products && AVAIL.products[it.id] && AVAIL.products[it.id].type==="counted"){
+    const otherInCart = cart.filter(c=>c.id===it.id && c.key!==key).reduce((s,c)=>s+c.qty,0);
+    if(it.qty + d > AVAIL.products[it.id].remaining - otherInCart){ alert("That's all the stock we have."); return; }
+  }
   it.qty += d; if(it.qty<=0) cart = cart.filter(c=>c.key!==key);
-  save(); renderCart();
+  save(); applyAvailability(); renderCart();
 }
-function removeItem(key){ cart = cart.filter(c=>c.key!==key); save(); renderCart(); }
+function removeItem(key){ cart = cart.filter(c=>c.key!==key); save(); applyAvailability(); renderCart(); }
 const cartTotal = () => cart.reduce((s,c)=>s+c.price*c.qty,0);
 
 function renderCart(){
@@ -359,9 +424,7 @@ function renderCart(){
         ${c.opt?`<div class="li-sub">${c.optLabel||"Option"}: ${c.opt}</div>`:""}
         <div class="li-price">${fmt(c.price)} each</div>
         <div class="qty">
-          <button onclick="changeQty('${c.key}',-1)">&minus;</button>
-          <span>${c.qty}</span>
-          <button onclick="changeQty('${c.key}',1)">+</button>
+          ${c.numbered ? `<span>Qty 1</span>` : `<button onclick="changeQty('${c.key}',-1)">&minus;</button><span>${c.qty}</span><button onclick="changeQty('${c.key}',1)">+</button>`}
           <button class="remove" onclick="removeItem('${c.key}')">Remove</button>
         </div>
       </div>
@@ -423,16 +486,46 @@ async function placeOrder(){
   const orderText = buildOrderText(info);
   const total = fmt(cartTotal());
   const itemsText = cart.map(c=>`${c.qty} x ${c.name}${c.opt?(" ("+c.opt+")"):""} — ${fmt(c.price*c.qty)}`).join("\n");
+  const orderRef = "LC-" + Date.now();
   const btn = document.getElementById("placeBtn");
   if(btn){ btn.disabled = true; btn.textContent = "Sending…"; }
-  // No key set -> fall back to opening an email
-  if(!STORE.web3formsKey){ emailFallback(info, orderText); showConfirmation(orderText); return; }
+
+  // 1) Reserve inventory (numbered pieces + counted stock) via the sheet.
+  if(STORE.apiUrl){
+    try {
+      const reserveItems = cart.map(c => c.numbered
+        ? { id:c.id, name:c.name, unitPrice:c.price, serial:Number(c.opt) }
+        : { id:c.id, name:c.name, unitPrice:c.price, qty:c.qty });
+      const r = await fetch(STORE.apiUrl, {
+        method:"POST",
+        headers:{ "Content-Type":"text/plain;charset=utf-8" },
+        body: JSON.stringify({ orderRef, buyer:{ name:`${info.first} ${info.last}`, email:info.email, phone:info.phone, shipTo:`${info.addr}, ${info.city}, ${info.state} ${info.zip}`, notes:info.notes }, items: reserveItems })
+      });
+      const out = await r.json().catch(()=>({}));
+      if(out && out.success===false && out.conflicts){
+        out.conflicts.forEach(c=>{
+          if(c.serial!=null){ cart = cart.filter(it=> !(it.id===c.id && String(it.opt)===String(c.serial))); }
+          else if(c.reason==="insufficient_stock"){ const it=cart.find(x=>x.id===c.id); if(it){ if(c.remaining>0) it.qty=c.remaining; else cart=cart.filter(x=>x.id!==c.id); } }
+        });
+        save();
+        await loadAvailability();
+        renderCart();
+        if(btn){ btn.disabled=false; btn.textContent="Place Order"; }
+        alert(conflictMessage(out.conflicts));
+        return;
+      }
+    } catch(e){ /* network issue reserving -> fail open so an order is never lost */ }
+  }
+
+  // 2) Email the order (Web3Forms) + show payment options.
+  if(!STORE.web3formsKey){ emailFallback(info, orderText); finishOrder(orderText, btn); return; }
   const payload = {
     access_key: STORE.web3formsKey,
     subject: `New Longship Clan Order — ${info.first} ${info.last} (${total})`,
     from_name: "Longship Clan Website",
     email: info.email,
     botcheck: "",
+    "Order Ref": orderRef,
     "Customer": `${info.first} ${info.last}`,
     "Customer Email": info.email,
     "Phone": info.phone || "—",
@@ -453,9 +546,22 @@ async function placeOrder(){
   } catch(e){
     emailFallback(info, orderText);
   } finally {
-    if(btn){ btn.disabled = false; btn.textContent = "Place Order"; }
-    showConfirmation(orderText);
+    finishOrder(orderText, btn);
   }
+}
+function finishOrder(orderText, btn){
+  if(btn){ btn.disabled = false; btn.textContent = "Place Order"; }
+  showConfirmation(orderText);
+}
+function conflictMessage(conflicts){
+  const lines = conflicts.map(c=>{
+    const p = STORE.products.find(x=>x.id===c.id); const nm = p ? p.name : c.id;
+    if(c.reason==="serial_taken") return `• ${nm} No. ${c.serial} was just taken — please pick another.`;
+    if(c.reason==="invalid_serial") return `• ${nm}: that number isn't available.`;
+    if(c.reason==="insufficient_stock") return `• ${nm}: only ${c.remaining} left.`;
+    return `• ${nm}: no longer available.`;
+  });
+  return "A couple of things changed while you were checking out:\n\n" + lines.join("\n") + "\n\nWe've updated your cart and the numbers. Nothing was charged — review your cart and place the order again.";
 }
 function val(id){ const e=document.getElementById(id); return e? e.value.trim() : ""; }
 
@@ -474,7 +580,7 @@ function showConfirmation(orderText){
       <div class="copy-box" id="copyBox">${orderText.replace(/</g,"&lt;")}</div>
       <button class="btn" onclick="copyOrder()">Copy Order Details</button>
     </div>`;
-  cart = []; save(); renderCart();
+  cart = []; save(); renderCart(); loadAvailability();
 }
 function payCard(label, value, isLink, btnText){
   if(isLink){ return `<div class="pay-card"><div class="pl">${label}</div><a class="btn" href="${value}" target="_blank" rel="noopener">${btnText||"Pay"}</a></div>`; }
@@ -487,6 +593,7 @@ function copyOrder(){
 
 renderProducts();
 renderCart();
+loadAvailability();
 </script>
 </body>
 </html>
