@@ -236,10 +236,10 @@ const STORE = {
   orderEmail: "orders@longshipclan.com",        // <-- CHANGE to your real club email
   web3formsKey: "0a78bcf2-8f57-48cf-b34c-af775b69eb16", // <-- Web3Forms access key (auto-emails each order to your inbox)
   payment: {
-    square:  "",                                  // <-- paste your Square checkout/payment link
-    paypal:  "",                                  // <-- e.g. https://paypal.me/longshipclan
     venmo:   "@LongshipClan",                     // <-- your Venmo handle
-    cashapp: "$LongshipClan"                      // <-- your Cash App $cashtag
+    cashapp: "$LongshipClan",                     // <-- your Cash App $cashtag
+    paypal:  "https://www.paypal.com",            // <-- TODO: replace with your PayPal.Me / payment link
+    square:  "https://squareup.com"               // <-- "Direct CC/Debit" — TODO: replace with your Square checkout link
   },
   // Product fields:
   //   cat:    "swag" | "wear" | "gear"  (groups items into sections)
@@ -461,10 +461,10 @@ function val(id){ const e=document.getElementById(id); return e? e.value.trim() 
 
 function showConfirmation(orderText){
   const p = STORE.payment; const total = fmt(cartTotal()); let pays = "";
-  if(p.square)  pays += payCard("Square",   p.square,  true,  "Pay with Square");
-  if(p.paypal)  pays += payCard("PayPal",   p.paypal,  true,  "Pay with PayPal");
-  if(p.venmo)   pays += payCard("Venmo",    p.venmo,   false);
-  if(p.cashapp) pays += payCard("Cash App", p.cashapp, false);
+  if(p.venmo)   pays += payCard("Venmo",           p.venmo,   false);
+  if(p.cashapp) pays += payCard("Cash App",        p.cashapp, false);
+  if(p.paypal)  pays += payCard("PayPal",          p.paypal,  true,  "Pay with PayPal");
+  if(p.square)  pays += payCard("Direct CC/Debit", p.square,  true,  "Pay with Card");
   document.getElementById("modalTitle").textContent = "Order Received";
   document.getElementById("modalBody").innerHTML = `
     <div class="confirm">
