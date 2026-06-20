@@ -454,6 +454,7 @@ function checkoutFormHTML(){
       <div class="field"><label>First Name</label><input id="f_first" /></div>
       <div class="field"><label>Last Name</label><input id="f_last" /></div>
     </div>
+    <div class="field"><label>Road Name</label><input id="f_road" placeholder="Optional" /></div>
     <div class="row">
       <div class="field"><label>Email</label><input id="f_email" type="email" /></div>
       <div class="field"><label>Phone</label><input id="f_phone" /></div>
@@ -471,7 +472,7 @@ function checkoutFormHTML(){
 function buildOrderText(info){
   let t = "LONGSHIP CLAN — NEW ORDER\n============================\n\nITEMS:\n";
   cart.forEach(c=>{ t += `  ${c.qty} x ${c.name}${c.opt?(" ("+c.opt+")"):""}  —  ${fmt(c.price*c.qty)}\n`; });
-  t += `\nTOTAL: ${fmt(cartTotal())}\n\nSHIP TO:\n  ${info.first} ${info.last}\n  ${info.addr}\n  ${info.city}, ${info.state} ${info.zip}\n\nCONTACT:\n  Email: ${info.email}\n  Phone: ${info.phone}\n`;
+  t += `\nTOTAL: ${fmt(cartTotal())}\n\nSHIP TO:\n  ${info.first}${info.road?' "'+info.road+'"':''} ${info.last}\n  ${info.addr}\n  ${info.city}, ${info.state} ${info.zip}\n\nCONTACT:\n  Email: ${info.email}\n  Phone: ${info.phone}\n`;
   if(info.notes) t += `\nNOTES:\n  ${info.notes}\n`;
   return t;
 }
@@ -481,8 +482,9 @@ function emailFallback(info, orderText){
   window.location.href = `mailto:${STORE.orderEmail}?subject=${subject}&body=${body}`;
 }
 async function placeOrder(){
-  const info = {first:val("f_first"),last:val("f_last"),email:val("f_email"),phone:val("f_phone"),addr:val("f_addr"),city:val("f_city"),state:val("f_state"),zip:val("f_zip"),notes:val("f_notes")};
+  const info = {first:val("f_first"),last:val("f_last"),road:val("f_road"),email:val("f_email"),phone:val("f_phone"),addr:val("f_addr"),city:val("f_city"),state:val("f_state"),zip:val("f_zip"),notes:val("f_notes")};
   if(!info.first || !info.email){ alert("Please enter at least your name and email."); return; }
+  const fullName = info.road ? `${info.first} "${info.road}" ${info.last}` : `${info.first} ${info.last}`;
   const orderText = buildOrderText(info);
   const total = fmt(cartTotal());
   const itemsText = cart.map(c=>`${c.qty} x ${c.name}${c.opt?(" ("+c.opt+")"):""} — ${fmt(c.price*c.qty)}`).join("\n");
@@ -499,7 +501,7 @@ async function placeOrder(){
       const r = await fetch(STORE.apiUrl, {
         method:"POST",
         headers:{ "Content-Type":"text/plain;charset=utf-8" },
-        body: JSON.stringify({ orderRef, buyer:{ name:`${info.first} ${info.last}`, email:info.email, phone:info.phone, shipTo:`${info.addr}, ${info.city}, ${info.state} ${info.zip}`, notes:info.notes }, items: reserveItems })
+        body: JSON.stringify({ orderRef, buyer:{ name:fullName, email:info.email, phone:info.phone, shipTo:`${info.addr}, ${info.city}, ${info.state} ${info.zip}`, notes:info.notes }, items: reserveItems })
       });
       const out = await r.json().catch(()=>({}));
       if(out && out.success===false && out.conflicts){
@@ -526,7 +528,8 @@ async function placeOrder(){
     email: info.email,
     botcheck: "",
     "Order Ref": orderRef,
-    "Customer": `${info.first} ${info.last}`,
+    "Customer": fullName,
+    "Road Name": info.road || "—",
     "Customer Email": info.email,
     "Phone": info.phone || "—",
     "Ship To": `${info.addr}, ${info.city}, ${info.state} ${info.zip}`,
