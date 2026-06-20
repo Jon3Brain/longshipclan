@@ -19,6 +19,7 @@
   --head:'Viking','Oswald',sans-serif; --body:'Arial','Helvetica Neue',sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
 body{background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.6;-webkit-font-smoothing:antialiased}
 h1,h2,h3{font-family:var(--head);text-transform:uppercase;letter-spacing:.04em;line-height:1.05}
 a{color:var(--accent);text-decoration:none}
@@ -160,7 +161,7 @@ footer .small{color:#7c726d;font-size:13px}
    keeps casual visitors out. Change the code below if needed. */
 const CLAN_CODE = "922";
 
-function show(){ document.getElementById("gate").hidden = true; document.getElementById("members").hidden = false; }
+function show(){ document.getElementById("gate").hidden = true; document.getElementById("members").hidden = false; window.scrollTo(0,0); }
 function lock(){ try{ sessionStorage.removeItem("lc_brothers"); }catch(e){} location.reload(); }
 function unlock(){
   const v = document.getElementById("pw").value.trim();
