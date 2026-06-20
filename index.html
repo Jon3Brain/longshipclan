@@ -234,6 +234,7 @@ footer .pay-line{color:var(--muted);font-size:14px;margin-bottom:10px}
    ============================================================ */
 const STORE = {
   orderEmail: "orders@longshipclan.com",        // <-- CHANGE to your real club email
+  web3formsKey: "0a78bcf2-8f57-48cf-b34c-af775b69eb16", // <-- Web3Forms access key (auto-emails each order to your inbox)
   payment: {
     square:  "",                                  // <-- paste your Square checkout/payment link
     paypal:  "",                                  // <-- e.g. https://paypal.me/longshipclan
@@ -401,7 +402,7 @@ function checkoutFormHTML(){
       <div class="field"><label>ZIP</label><input id="f_zip" /></div>
     </div>
     <div class="field"><label>Notes (optional)</label><textarea id="f_notes" rows="2" placeholder="Anything we should know?"></textarea></div>
-    <button class="btn" onclick="placeOrder()">Place Order</button>
+    <button class="btn" id="placeBtn" onclick="placeOrder()">Place Order</button>
   `;
 }
 function buildOrderText(info){
@@ -411,14 +412,50 @@ function buildOrderText(info){
   if(info.notes) t += `\nNOTES:\n  ${info.notes}\n`;
   return t;
 }
-function placeOrder(){
-  const info = {first:val("f_first"),last:val("f_last"),email:val("f_email"),phone:val("f_phone"),addr:val("f_addr"),city:val("f_city"),state:val("f_state"),zip:val("f_zip"),notes:val("f_notes")};
-  if(!info.first || !info.email){ alert("Please enter at least your name and email."); return; }
-  const orderText = buildOrderText(info);
+function emailFallback(info, orderText){
   const subject = encodeURIComponent(`Longship Clan Order — ${info.first} ${info.last}`);
   const body = encodeURIComponent(orderText + "\n(Sent from longshipclan.com)");
   window.location.href = `mailto:${STORE.orderEmail}?subject=${subject}&body=${body}`;
-  showConfirmation(orderText);
+}
+async function placeOrder(){
+  const info = {first:val("f_first"),last:val("f_last"),email:val("f_email"),phone:val("f_phone"),addr:val("f_addr"),city:val("f_city"),state:val("f_state"),zip:val("f_zip"),notes:val("f_notes")};
+  if(!info.first || !info.email){ alert("Please enter at least your name and email."); return; }
+  const orderText = buildOrderText(info);
+  const total = fmt(cartTotal());
+  const itemsText = cart.map(c=>`${c.qty} x ${c.name}${c.opt?(" ("+c.opt+")"):""} — ${fmt(c.price*c.qty)}`).join("\n");
+  const btn = document.getElementById("placeBtn");
+  if(btn){ btn.disabled = true; btn.textContent = "Sending…"; }
+  // No key set -> fall back to opening an email
+  if(!STORE.web3formsKey){ emailFallback(info, orderText); showConfirmation(orderText); return; }
+  const payload = {
+    access_key: STORE.web3formsKey,
+    subject: `New Longship Clan Order — ${info.first} ${info.last} (${total})`,
+    from_name: "Longship Clan Website",
+    email: info.email,
+    botcheck: "",
+    "Customer": `${info.first} ${info.last}`,
+    "Customer Email": info.email,
+    "Phone": info.phone || "—",
+    "Ship To": `${info.addr}, ${info.city}, ${info.state} ${info.zip}`,
+    "Items": itemsText,
+    "Total": total,
+    "Notes": info.notes || "—",
+    "Full Order": orderText
+  };
+  try {
+    const res = await fetch("https://api.web3forms.com/submit", {
+      method:"POST",
+      headers:{ "Content-Type":"application/json", "Accept":"application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json().catch(()=>({}));
+    if(!(res.ok && data.success)){ emailFallback(info, orderText); }
+  } catch(e){
+    emailFallback(info, orderText);
+  } finally {
+    if(btn){ btn.disabled = false; btn.textContent = "Place Order"; }
+    showConfirmation(orderText);
+  }
 }
 function val(id){ const e=document.getElementById(id); return e? e.value.trim() : ""; }
 
@@ -428,11 +465,11 @@ function showConfirmation(orderText){
   if(p.paypal)  pays += payCard("PayPal",   p.paypal,  true,  "Pay with PayPal");
   if(p.venmo)   pays += payCard("Venmo",    p.venmo,   false);
   if(p.cashapp) pays += payCard("Cash App", p.cashapp, false);
-  document.getElementById("modalTitle").textContent = "Order Started";
+  document.getElementById("modalTitle").textContent = "Order Received";
   document.getElementById("modalBody").innerHTML = `
     <div class="confirm">
-      <h4>Almost done — send your payment</h4>
-      <p>Your email app should have opened with your order. If it didn't, copy the order below and email it to <a href="mailto:${STORE.orderEmail}">${STORE.orderEmail}</a>. Then pay your <strong>${total}</strong> using any option below.</p>
+      <h4>Order received — now send your payment</h4>
+      <p>Thanks — your order has been sent to us. To complete it, pay your <strong>${total}</strong> using any option below. Questions, or need to resend? Copy the details below and email <a href="mailto:${STORE.orderEmail}">${STORE.orderEmail}</a>.</p>
       <div class="pay-options">${pays || '<div class="pay-card"><div class="pl">Contact</div><div class="pv">'+STORE.orderEmail+'</div></div>'}</div>
       <div class="copy-box" id="copyBox">${orderText.replace(/</g,"&lt;")}</div>
       <button class="btn" onclick="copyOrder()">Copy Order Details</button>
