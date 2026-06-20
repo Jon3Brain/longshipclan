@@ -36,9 +36,9 @@ img{max-width:100%;display:block}
 
 header{position:sticky;top:0;z-index:50;background:var(--bg-near-black);border-bottom:2px solid var(--accent)}
 .nav{display:flex;align-items:center;justify-content:space-between;height:70px}
-.brand{display:flex;align-items:center;gap:12px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;cursor:pointer}
 .brand .mark{width:46px;height:46px;border:2px solid var(--accent);border-radius:50%;object-fit:cover;background:#ECEAE2}
-.brand .name{font-family:var(--head);font-weight:700;font-size:24px;letter-spacing:.06em}
+.brand .name{font-family:var(--head);font-weight:700;font-size:24px;letter-spacing:.06em;color:var(--text)}
 .brand .name span{color:var(--accent)}
 .nav-links{display:flex;align-items:center;gap:26px}
 .nav-links a{color:var(--accent);font-family:var(--head);text-transform:uppercase;font-size:15px;letter-spacing:.05em;font-weight:600}
@@ -164,10 +164,10 @@ footer .pay-line{color:var(--muted);font-size:14px;margin-bottom:10px}
 
 <header>
   <div class="container nav">
-    <div class="brand">
+    <a class="brand" href="/">
       <img class="mark" src="images/clan-emblem.png" alt="Longship Clan emblem" />
       <div class="name">LONGSHIP <span>CLAN</span></div>
-    </div>
+    </a>
     <nav class="nav-links">
       <a href="#store">Store</a>
       <a href="#about" class="plain">About</a>
