@@ -70,6 +70,10 @@ section{padding:64px 0}
 .card:hover{border-color:var(--accent);transform:translateY(-3px)}
 .card .thumb{aspect-ratio:1/1;background:var(--bg-near-black);display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line);overflow:hidden;position:relative}
 .card .thumb img{width:100%;height:100%;object-fit:cover}
+.card .gallery{display:flex;gap:6px;padding:8px 10px;background:var(--bg-near-black);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.card .gallery .tn{width:42px;height:42px;object-fit:cover;border:1px solid var(--line);cursor:pointer;opacity:.6;transition:.12s}
+.card .gallery .tn:hover{opacity:1}
+.card .gallery .tn.active{border-color:var(--accent);opacity:1}
 .card .thumb .ph{font-family:var(--head);color:#5a4f4a;font-size:13px;letter-spacing:.2em;text-transform:uppercase;text-align:center;padding:0 12px}
 .card .tag-badge{position:absolute;top:10px;left:10px;background:var(--accent);color:#100D0E;font-family:var(--head);font-size:11px;font-weight:700;letter-spacing:.1em;padding:3px 9px;text-transform:uppercase;z-index:2}
 .card .thumb .flip{position:absolute;bottom:10px;right:10px;background:rgba(16,13,14,.82);border:1px solid var(--accent);color:var(--accent);font-family:var(--head);text-transform:uppercase;font-size:11px;font-weight:600;letter-spacing:.08em;padding:5px 10px;cursor:pointer;z-index:2}
@@ -252,26 +256,40 @@ const STORE = {
   //   colors: (optional) [{name, img}] -> adds a color picker that swaps the photo
   //   sizes:  (optional) ["S","M",...] for apparel
   products: [
-    { id:"coin", cat:"swag", name:"Longship Clan Coin", price:40, badge:"Coin",
-      img:"images/coin_front.jpg", imgBack:"images/coin_back.jpg",
-      desc:"Two-sided Longship Clan / Iron Vikings MC challenge coin. Price includes shipping." },
+    { id:"coin", cat:"coins", name:"Longship Clan Coin", price:40, badge:"Coin", numbered:true,
+      images:["images/coin_front.jpg","images/coin_back.jpg"],
+      desc:"3-inch two-sided challenge coin — Longship Clan on the front, Iron Vikings Nomad on the back. Individually numbered." },
 
-    { id:"hammer", cat:"swag", name:"Hammer Pendant", price:30, badge:"Limited", numbered:true,
-      img:"images/hammer_front.jpg", imgBack:"images/hammer_back.jpg",
-      desc:"UV-print Mjolnir hammer pendant. Limited stock — only about 14 left." },
+    { id:"hammer", cat:"coins", name:"Hammer Pendant", price:30, badge:"Numbered", numbered:true,
+      images:["images/hammer_front.jpg","images/hammer_back.jpg"],
+      desc:"Ornate Mjolnir hammer pendant with stone inlay. Individually numbered." },
 
-    { id:"valkyrie", cat:"swag", name:"Valkyrie Pendant", price:35, badge:"Pendant", numbered:true,
-      img:"images/valkyrie_front.jpg", imgBack:"images/valkyrie_back.jpg",
-      desc:"Winged Valkyrie pendant — Tree of Life on one side, Valknut on the other. Price includes shipping." },
+    { id:"valkyrie", cat:"coins", name:"Valkyrie Pendant", price:35, badge:"Numbered", numbered:true,
+      images:["images/valkyrie_front.jpg","images/valkyrie_back.jpg"],
+      desc:"Winged Valkyrie pendant. Individually numbered." },
 
-    { id:"med2", cat:"swag", name:"2\" Iron Vikings Nomad Medallion", price:15, badge:"2 inch",
-      img:"images/medallion2_front.jpg",
-      desc:"2-inch cast-metal medallion. $15 each, or 5 for $60 (note the quantity at checkout)." },
+    { id:"med2", cat:"medallions", name:"2\" Patch Medallion", price:5, badge:"2 inch",
+      images:["images/med2_front.jpg","images/med2_back.jpg"],
+      desc:"2-inch cast-metal Iron Vikings Nomad medallion. $5 each, or 5 for $20 — set the quantity at checkout." },
 
-    { id:"med1", cat:"swag", name:"1\" Iron Vikings Nomad Medallion", price:10, badge:"1 inch",
-      img:"images/medallion1_silver.jpg",
-      colors:[{name:"Silver",img:"images/medallion1_silver.jpg"},{name:"Black",img:"images/medallion1_black.jpg"}],
-      desc:"1-inch cast-metal medallion in silver or black. $10 each, or 5 for $40 (note the quantity at checkout)." }
+    { id:"med1", cat:"medallions", name:"1\" Medallion", price:2.5, badge:"1 inch",
+      colors:[
+        {name:"Silver", images:["images/med1_silver_front.jpg","images/med1_silver_back.jpg"]},
+        {name:"Black", images:["images/med1_black_front.jpg","images/med1_black_back.jpg"]}
+      ],
+      desc:"1-inch cast-metal medallion in silver or black. 2 for $5, or 10 for $20 — set the quantity at checkout." },
+
+    { id:"zippo", cat:"gear", name:"Zippo Lighter", price:55, badge:"Lighter",
+      images:["images/zippo_front.jpg","images/zippo_back.jpg","images/zippo_bottom.jpg","images/zippo_box.jpg"],
+      desc:"Genuine Zippo windproof lighter with the Iron Vikings emblem. Price includes shipping." },
+
+    { id:"sticker_longship", cat:"stickers", name:"Longship Sticker", price:1, badge:"3 inch",
+      images:["images/sticker_longship.jpg"],
+      desc:"3-inch round Longship Clan sticker." },
+
+    { id:"sticker_ivmc", cat:"stickers", name:"IVMC Fire Patch Sticker", price:1, badge:"3 inch",
+      images:["images/sticker_ivmc.jpg"],
+      desc:"3-inch die-cut Iron Vikings fire-patch sticker." }
   ]
 };
 /* ============ END EDIT BLOCK ============ */
@@ -284,24 +302,27 @@ const save = () => { try{ localStorage.setItem("lc_cart_v2", JSON.stringify(cart
 document.getElementById("year").textContent = new Date().getFullYear();
 
 const CATEGORIES = [
-  { key:"swag", label:"Swag" },
-  { key:"wear", label:"Wear" },
-  { key:"gear", label:"Gear" }
+  { key:"coins", label:"Coins & Pendants" },
+  { key:"medallions", label:"Medallions" },
+  { key:"gear", label:"Gear" },
+  { key:"stickers", label:"Stickers" }
 ];
 function cardHTML(p){
-  const front = p.colors ? p.colors[0].img : p.img;
-  const imgEl = `<img class="pimg" id="pimg-${p.id}" src="${front}" alt="${p.name}" data-front="${front}" data-back="${p.imgBack||''}" data-side="front" onerror="this.style.display='none';this.parentNode.innerHTML='<div class=ph>Photo coming soon</div>'">`;
-  const flip = p.imgBack ? `<button class="flip" onclick="flipImg('${p.id}')">View Back</button>` : "";
+  const imgs = currentImages(p);
+  const main = imgs[0] || "";
+  const imgEl = `<img class="pimg" id="pimg-${p.id}" src="${main}" alt="${p.name}" onerror="this.style.display='none';this.parentNode.innerHTML='<div class=ph>Photo coming soon</div>'">`;
+  const gallery = imgs.length>1 ? `<div class="gallery" id="gal-${p.id}">${imgs.map((src,i)=>`<img class="tn${i===0?' active':''}" src="${src}" alt="" onclick="setMain('${p.id}','${src}',this)">`).join("")}</div>` : "";
   let opt = "";
   if(p.numbered){
     opt = `<select id="opt-${p.id}" data-label="Number"><option value="">Loading numbers…</option></select>`;
   } else if(p.sizes){
     opt = `<select id="opt-${p.id}" data-label="Size">${p.sizes.map(s=>`<option value="${s}">Size: ${s}</option>`).join("")}</select>`;
   } else if(p.colors){
-    opt = `<select id="opt-${p.id}" data-label="Color" onchange="swapColor('${p.id}')">${p.colors.map(c=>`<option value="${c.name}" data-img="${c.img}">Color: ${c.name}</option>`).join("")}</select>`;
+    opt = `<select id="opt-${p.id}" data-label="Color" onchange="swapColor('${p.id}')">${p.colors.map(c=>`<option value="${c.name}">Color: ${c.name}</option>`).join("")}</select>`;
   }
   return `<div class="card">
-    <div class="thumb">${p.badge?`<span class="tag-badge">${p.badge}</span>`:""}${imgEl}${flip}</div>
+    <div class="thumb">${p.badge?`<span class="tag-badge">${p.badge}</span>`:""}${imgEl}</div>
+    ${gallery}
     <div class="body">
       <h3>${p.name}</h3>
       <div class="desc">${p.desc||""}</div>
@@ -320,19 +341,26 @@ function renderProducts(){
     return `<div class="cat-block"><h3 class="cat-head">${cat.label}</h3><div class="grid">${items.map(cardHTML).join("")}</div></div>`;
   }).join("");
 }
-function flipImg(id){
-  const img=document.getElementById("pimg-"+id);
-  const toBack = img.dataset.side!=="back";
-  img.src = toBack ? img.dataset.back : img.dataset.front;
-  img.dataset.side = toBack ? "back" : "front";
-  const btn=img.parentNode.querySelector(".flip");
-  if(btn) btn.textContent = toBack ? "View Front" : "View Back";
+function currentImages(p){
+  if(p.colors && p.colors.length) return p.colors[0].images || [];
+  if(p.images) return p.images;
+  return p.img ? [p.img] : [];
+}
+function setMain(id, src, el){
+  const img = document.getElementById("pimg-"+id);
+  if(img){ img.style.display=""; img.src = src; }
+  if(el && el.parentNode){ el.parentNode.querySelectorAll(".tn").forEach(t=>t.classList.remove("active")); el.classList.add("active"); }
 }
 function swapColor(id){
-  const sel=document.getElementById("opt-"+id);
-  const img=document.getElementById("pimg-"+id);
-  const src=sel.options[sel.selectedIndex].dataset.img;
-  img.src=src; img.dataset.front=src; img.dataset.side="front";
+  const p = STORE.products.find(x=>x.id===id);
+  const sel = document.getElementById("opt-"+id);
+  const color = (p.colors||[]).find(c=>c.name===sel.value) || (p.colors||[])[0];
+  if(!color) return;
+  const imgs = color.images || [];
+  const img = document.getElementById("pimg-"+id);
+  if(img && imgs[0]){ img.style.display=""; img.src = imgs[0]; }
+  const gal = document.getElementById("gal-"+id);
+  if(gal){ gal.innerHTML = imgs.map((src,i)=>`<img class="tn${i===0?' active':''}" src="${src}" alt="" onclick="setMain('${id}','${src}',this)">`).join(""); }
 }
 
 /* ---- Live availability: numbered pieces + counted stock ---- */
