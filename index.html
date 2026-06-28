@@ -98,6 +98,10 @@ footer{background:var(--bg-near-black);border-top:2px solid var(--accent);paddin
 footer .name{font-family:var(--head);font-size:26px;font-weight:700;letter-spacing:.08em}
 footer .name span{color:var(--accent)}
 footer .credo{color:var(--accent);font-family:var(--head);text-transform:uppercase;letter-spacing:.15em;margin:10px 0 16px;font-size:15px}
+footer .social{display:flex;justify-content:center;gap:14px;margin:0 0 18px}
+footer .social .soc{width:42px;height:42px;border:2px solid var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--accent);transition:.15s}
+footer .social .soc:hover{background:var(--accent);color:#100D0E}
+footer .social .soc svg{width:20px;height:20px;fill:currentColor}
 footer .small{color:#7c726d;font-size:13px;line-height:1.8}
 footer .pay-line{color:var(--muted);font-size:14px;margin-bottom:10px}
 
@@ -208,6 +212,12 @@ footer .pay-line{color:var(--muted);font-size:14px;margin-bottom:10px}
   <div class="container">
     <div class="name">LONGSHIP <span>CLAN</span></div>
     <div class="credo">Respect All · Fear None · To Be One, Ask One</div>
+    <div class="social">
+      <a class="soc" href="https://www.facebook.com/longshipclan" target="_blank" rel="noopener" aria-label="Facebook">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5 3.66 9.15 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.52 1.49-3.92 3.78-3.92 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.87h2.78l-.44 2.91h-2.34V22c4.78-.79 8.44-4.94 8.44-9.94z"/></svg>
+      </a>
+      <!-- Add more social links here — copy the <a class="soc"> block above (Instagram, X, etc.) and swap the href + svg path -->
+    </div>
     <div class="pay-line">We accept Square · PayPal · Venmo · Cash App</div>
     <div class="small">
       &copy; <span id="year"></span> Longship Clan. All rights reserved.<br/>
