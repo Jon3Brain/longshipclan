@@ -153,6 +153,14 @@ footer .pay-line{color:var(--muted);font-size:14px;margin-bottom:10px}
 
 .confirm h4{font-family:var(--head);text-transform:uppercase;color:var(--accent);font-size:20px;margin-bottom:8px}
 .confirm p{color:var(--muted);font-size:15px;margin-bottom:16px}
+.confirm .orderno{font-family:var(--head);font-size:18px;letter-spacing:.04em;background:var(--bg-near-black);border:1px solid var(--line);padding:10px 14px;margin-bottom:14px;text-align:center}
+.confirm .orderno strong{color:var(--accent)}
+.confirm .pay-now{display:block;width:100%;text-align:center;margin:4px 0 18px;font-size:18px}
+.confirm .pay-alt-label{font-family:var(--head);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-size:13px;text-align:center;margin-bottom:10px}
+.confirm .pay-note{background:rgba(227,82,5,.08);border:1px solid var(--line);border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0;font-size:13px;color:var(--muted)}
+.confirm .pay-note strong{color:var(--text)}
+.confirm .btn.ghost{width:100%;text-align:center;background:transparent;color:var(--accent);margin-top:4px}
+.confirm .btn.ghost:hover{background:var(--accent);color:#100D0E}
 .pay-options{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
 .pay-card{background:var(--bg-near-black);border:1px solid var(--line);padding:14px;text-align:center}
 .pay-card .pl{font-family:var(--head);text-transform:uppercase;color:var(--accent);font-size:14px;letter-spacing:.05em;margin-bottom:6px}
@@ -256,8 +264,7 @@ const STORE = {
   payment: {
     venmo:   "@LongshipClan",                     // <-- your Venmo handle
     cashapp: "$LongshipClan",                     // <-- your Cash App $cashtag
-    paypal:  "https://www.paypal.com",            // <-- TODO: replace with your PayPal.Me / payment link
-    square:  "https://squareup.com"               // <-- "Direct CC/Debit" — TODO: replace with your Square checkout link
+    square:  "https://squareup.com"               // <-- "Pay Now" button — TODO: replace with your real Square checkout/payment link
   },
   // Product fields:
   //   cat:    "swag" | "wear" | "gear"  (groups items into sections)
@@ -507,8 +514,10 @@ function checkoutFormHTML(){
     <button class="btn" id="placeBtn" onclick="placeOrder()">Place Order</button>
   `;
 }
-function buildOrderText(info){
-  let t = "LONGSHIP CLAN — NEW ORDER\n============================\n\nITEMS:\n";
+function buildOrderText(info, orderRef){
+  let t = "LONGSHIP CLAN — NEW ORDER\n============================\n";
+  if(orderRef) t += "Order #: " + orderRef + "\n";
+  t += "\nITEMS:\n";
   cart.forEach(c=>{ t += `  ${c.qty} x ${c.name}${c.opt?(" ("+c.opt+")"):""}  —  ${fmt(c.price*c.qty)}\n`; });
   t += `\nTOTAL: ${fmt(cartTotal())}\n\nSHIP TO:\n  ${info.first}${info.road?' "'+info.road+'"':''} ${info.last}\n  ${info.addr}\n  ${info.city}, ${info.state} ${info.zip}\n\nCONTACT:\n  Email: ${info.email}\n  Phone: ${info.phone}\n`;
   if(info.notes) t += `\nNOTES:\n  ${info.notes}\n`;
@@ -520,13 +529,13 @@ function emailFallback(info, orderText){
   window.location.href = `mailto:${STORE.orderEmail}?subject=${subject}&body=${body}`;
 }
 async function placeOrder(){
+  const orderRef = "LC-" + Date.now();
   const info = {first:val("f_first"),last:val("f_last"),road:val("f_road"),email:val("f_email"),phone:val("f_phone"),addr:val("f_addr"),city:val("f_city"),state:val("f_state"),zip:val("f_zip"),notes:val("f_notes")};
   if(!info.first || !info.email){ alert("Please enter at least your name and email."); return; }
   const fullName = info.road ? `${info.first} "${info.road}" ${info.last}` : `${info.first} ${info.last}`;
-  const orderText = buildOrderText(info);
+  const orderText = buildOrderText(info, orderRef);
   const total = fmt(cartTotal());
   const itemsText = cart.map(c=>`${c.qty} x ${c.name}${c.opt?(" ("+c.opt+")"):""} — ${fmt(c.price*c.qty)}`).join("\n");
-  const orderRef = "LC-" + Date.now();
   const btn = document.getElementById("placeBtn");
   if(btn){ btn.disabled = true; btn.textContent = "Sending…"; }
 
@@ -558,7 +567,7 @@ async function placeOrder(){
   }
 
   // 2) Email the order (Web3Forms) + show payment options.
-  if(!STORE.web3formsKey){ emailFallback(info, orderText); finishOrder(orderText, btn); return; }
+  if(!STORE.web3formsKey){ emailFallback(info, orderText); finishOrder(orderText, btn, orderRef); return; }
   const payload = {
     access_key: STORE.web3formsKey,
     subject: `New Longship Clan Order — ${info.first} ${info.last} (${total})`,
@@ -587,12 +596,12 @@ async function placeOrder(){
   } catch(e){
     emailFallback(info, orderText);
   } finally {
-    finishOrder(orderText, btn);
+    finishOrder(orderText, btn, orderRef);
   }
 }
-function finishOrder(orderText, btn){
+function finishOrder(orderText, btn, orderRef){
   if(btn){ btn.disabled = false; btn.textContent = "Place Order"; }
-  showConfirmation(orderText);
+  showConfirmation(orderText, orderRef);
 }
 function conflictMessage(conflicts){
   const lines = conflicts.map(c=>{
@@ -606,20 +615,23 @@ function conflictMessage(conflicts){
 }
 function val(id){ const e=document.getElementById(id); return e? e.value.trim() : ""; }
 
-function showConfirmation(orderText){
-  const p = STORE.payment; const total = fmt(cartTotal()); let pays = "";
-  if(p.venmo)   pays += payCard("Venmo",           p.venmo,   false);
-  if(p.cashapp) pays += payCard("Cash App",        p.cashapp, false);
-  if(p.paypal)  pays += payCard("PayPal",          p.paypal,  true,  "Pay with PayPal");
-  if(p.square)  pays += payCard("Direct CC/Debit", p.square,  true,  "Pay with Card");
+function showConfirmation(orderText, orderRef){
+  const p = STORE.payment; const total = fmt(cartTotal());
+  let manual = "";
+  if(p.venmo)   manual += payCard("Venmo",    p.venmo,   false);
+  if(p.cashapp) manual += payCard("Cash App", p.cashapp, false);
+  const ref = orderRef || "";
   document.getElementById("modalTitle").textContent = "Order Received";
   document.getElementById("modalBody").innerHTML = `
     <div class="confirm">
-      <h4>Order received — now send your payment</h4>
-      <p>Thanks — your order has been sent to us. To complete it, pay your <strong>${total}</strong> using any option below. Questions, or need to resend? Copy the details below and email <a href="mailto:${STORE.orderEmail}">${STORE.orderEmail}</a>.</p>
-      <div class="pay-options">${pays || '<div class="pay-card"><div class="pl">Contact</div><div class="pv">'+STORE.orderEmail+'</div></div>'}</div>
+      <h4>Order received — now pay</h4>
+      ${ref?`<div class="orderno">Order #: <strong>${ref}</strong></div>`:""}
+      <p>Your total is <strong>${total}</strong>. Pay securely by card now, or use Venmo / Cash App below.</p>
+      ${p.square?`<a class="btn pay-now" href="${p.square}" target="_blank" rel="noopener">Pay Now — Card</a>`:""}
+      ${manual?`<div class="pay-alt-label">Or pay by app</div><div class="pay-options">${manual}</div>
+      <div class="pay-note">Paying by Venmo or Cash App? Please put your <strong>Order #${ref}</strong> in the payment note so we can match your payment to this order.</div>`:""}
       <div class="copy-box" id="copyBox">${orderText.replace(/</g,"&lt;")}</div>
-      <button class="btn" onclick="copyOrder()">Copy Order Details</button>
+      <button class="btn ghost" onclick="copyOrder()">Copy Order Details</button>
     </div>`;
   cart = []; save(); renderCart(); loadAvailability();
 }
