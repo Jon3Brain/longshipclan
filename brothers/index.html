@@ -173,16 +173,10 @@ footer .small{color:#7c726d;font-size:13px}
       </div>
       <div class="pre-form">
         <h3>Reserve a Pre-Order</h3>
+        <p class="pre-desc" style="margin-bottom:10px">How many of each? ($40 each — leave a field at 0 to skip it.)</p>
         <div class="frow">
-          <label>Which flag?
-            <select id="pf_item">
-              <option value="flagbike">Bike-on-Flag — $40</option>
-              <option value="flag">Flag — $40</option>
-            </select>
-          </label>
-          <label>Qty
-            <select id="pf_qty"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
-          </label>
+          <label>Bike-on-Flag — Qty<input id="pf_qty_flagbike" type="number" min="0" value="0" /></label>
+          <label>Flag — Qty<input id="pf_qty_flag" type="number" min="0" value="0" /></label>
         </div>
         <div class="frow">
           <label>First Name<input id="pf_first" /></label>
@@ -256,30 +250,43 @@ async function loadPreAvail(){
 }
 async function submitPreorder(){
   const g = function(id){ const e=document.getElementById(id); return e? e.value.trim() : ""; };
-  const item=g("pf_item"), qty=parseInt(g("pf_qty"),10)||1;
+  const qb = Math.max(0, parseInt(g("pf_qty_flagbike"),10)||0);
+  const qf = Math.max(0, parseInt(g("pf_qty_flag"),10)||0);
   const first=g("pf_first"), last=g("pf_last"), road=g("pf_road"), email=g("pf_email"), phone=g("pf_phone"), notes=g("pf_notes");
   const msg=document.getElementById("pf_msg");
-  if(!first || !email){ msg.className="pre-msg err"; msg.textContent="Please enter at least your name and email."; return; }
-  const it=PRE.items[item]; const orderRef="PRE-"+Date.now();
+  const items=[];
+  if(qb>0) items.push({id:"flagbike", name:PRE.items.flagbike.name, unitPrice:PRE.items.flagbike.price, qty:qb});
+  if(qf>0) items.push({id:"flag", name:PRE.items.flag.name, unitPrice:PRE.items.flag.price, qty:qf});
+  if(!items.length){ msg.className="pre-msg err"; msg.textContent="Enter a quantity for at least one flag."; return; }
+  const orderRef="PRE-"+Date.now();
   const fullName = road ? (first+' "'+road+'" '+last) : (first+" "+last);
+  const who = fullName.trim() || "(no name given)";
+  const names = {flagbike:"Bike-on-Flag", flag:"Flag"};
+  const summary = items.map(function(i){ return i.qty+"× "+names[i.id]; }).join(", ");
+  const total = items.reduce(function(s,i){ return s + i.qty*i.unitPrice; }, 0);
   const btn=document.getElementById("pf_btn"); btn.disabled=true; btn.textContent="Submitting…";
-  let conflict=null;
+  let conflicts=null;
   try{
     const res=await fetch(PRE.apiUrl,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},
-      body:JSON.stringify({orderRef:orderRef, buyer:{name:fullName,email:email,phone:phone,shipTo:"",notes:"PRE-ORDER"+(notes?(" — "+notes):"")}, items:[{id:item,name:it.name,unitPrice:it.price,qty:qty}]})});
+      body:JSON.stringify({orderRef:orderRef, buyer:{name:who,email:email,phone:phone,shipTo:"",notes:"PRE-ORDER"+(notes?(" — "+notes):"")}, items:items})});
     const out=await res.json().catch(function(){return {};});
-    if(out && out.success===false && out.conflicts){ conflict=out.conflicts; }
+    if(out && out.success===false && out.conflicts){ conflicts=out.conflicts; }
   }catch(e){}
   try{
     await fetch("https://api.web3forms.com/submit",{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},
-      body:JSON.stringify({access_key:PRE.web3formsKey, subject:"Flag PRE-ORDER — "+fullName+" ("+qty+"x "+it.name+")", from_name:"Longship Clan Brothers", email:email, botcheck:"",
-        "Type":"PRE-ORDER (no payment collected)","Order Ref":orderRef,"Item":it.name,"Qty":qty,"Member":fullName,"Email":email,"Phone":phone||"—","Notes":notes||"—"})});
+      body:JSON.stringify({access_key:PRE.web3formsKey, subject:"Flag PRE-ORDER — "+who+" ("+summary+")", from_name:"Longship Clan Brothers", email:(email||undefined), botcheck:"",
+        "Type":"PRE-ORDER (no payment collected)","Order Ref":orderRef,"Items":summary,"Total":"$"+total,"Member":who,"Email":email||"—","Phone":phone||"—","Notes":notes||"—"})});
   }catch(e){}
   btn.disabled=false; btn.textContent="Register Pre-Order";
-  if(conflict){ msg.className="pre-msg err"; msg.textContent="Sorry — that flag is fully reserved (50 of 50). Try the other, or check back later."; loadPreAvail(); return; }
+  if(conflicts){
+    const lines = conflicts.map(function(c){ return (names[c.id]||c.id) + (c.reason==="insufficient_stock" ? (" — only "+c.remaining+" left") : " — unavailable"); });
+    msg.className="pre-msg err"; msg.textContent="Couldn't reserve: "+lines.join("; ")+". Nothing was reserved — adjust quantities and try again."; loadPreAvail(); return;
+  }
   msg.className="pre-msg ok";
-  msg.innerHTML="Pre-order registered! Your reference is <strong>"+orderRef+"</strong>. No payment now — we'll reach out to arrange the $"+(it.price*qty)+" when the flags are ready.";
+  msg.innerHTML="Pre-order registered! Reference <strong>"+orderRef+"</strong> — "+summary+". No payment now; we'll reach out to arrange the $"+total+" when the flags are ready.";
   ["pf_first","pf_last","pf_road","pf_email","pf_phone","pf_notes"].forEach(function(id){ const e=document.getElementById(id); if(e) e.value=""; });
+  const b=document.getElementById("pf_qty_flagbike"); if(b) b.value="0";
+  const f=document.getElementById("pf_qty_flag"); if(f) f.value="0";
   loadPreAvail();
 }
 loadPreAvail();
