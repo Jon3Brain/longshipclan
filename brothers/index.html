@@ -69,6 +69,29 @@ ul.clean li:last-child{border-bottom:none}
 ul.clean li strong{color:var(--text)}
 .pay-line{color:var(--muted);font-size:15px;margin-top:8px}
 .pay-line strong{color:var(--accent);font-family:var(--head);letter-spacing:.04em}
+.pre-intro{color:var(--muted);font-size:15px;margin-bottom:18px}
+.pre-intro strong{color:var(--text)}
+.pre-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px}
+.pre-card{background:var(--panel);border:1px solid var(--line);overflow:hidden}
+.pre-card img{width:100%;height:auto;display:block;border-bottom:1px solid var(--line)}
+.pre-card .pre-body{padding:14px 16px}
+.pre-card h3{font-size:18px;margin-bottom:6px}
+.pre-card .pre-desc{color:var(--muted);font-size:14px;margin-bottom:8px}
+.pre-card .pre-stock{font-family:var(--head);text-transform:uppercase;letter-spacing:.06em;font-size:13px;color:var(--accent)}
+.pre-form{background:var(--panel);border:1px solid var(--line);padding:20px 22px}
+.pre-form h3{font-size:20px;margin-bottom:14px;color:var(--accent)}
+.pre-form label{display:block;font-family:var(--head);text-transform:uppercase;font-size:12px;letter-spacing:.06em;color:var(--muted);margin-bottom:12px}
+.pre-form input,.pre-form select,.pre-form textarea{width:100%;background:var(--bg-near-black);border:1px solid var(--line);color:var(--text);padding:10px 12px;font-family:var(--body);font-size:15px;margin-top:5px}
+.pre-form input:focus,.pre-form select:focus,.pre-form textarea:focus{outline:none;border-color:var(--accent)}
+.pre-form .frow{display:flex;gap:14px}
+.pre-form .frow label{flex:1}
+.pre-form .btn{background:var(--accent);color:#100D0E;font-family:var(--head);text-transform:uppercase;font-weight:700;letter-spacing:.06em;padding:13px 26px;font-size:16px;border:2px solid var(--accent);cursor:pointer;transition:.15s;width:100%;margin-top:4px}
+.pre-form .btn:hover{background:transparent;color:var(--accent)}
+.pre-form .btn:disabled{opacity:.5;cursor:not-allowed}
+.pre-msg{margin-top:12px;font-size:14px;min-height:18px}
+.pre-msg.ok,.pre-msg.err{color:var(--accent-hi)}
+.pre-msg strong{color:var(--text)}
+@media(max-width:640px){.pre-grid{grid-template-columns:1fr}.pre-form .frow{flex-direction:column;gap:0}}
 footer{background:var(--bg-near-black);border-top:2px solid var(--accent);padding:34px 0;text-align:center;margin-top:10px}
 footer .credo{color:var(--accent);font-family:var(--head);text-transform:uppercase;letter-spacing:.15em;font-size:15px;margin-bottom:10px}
 footer .small{color:#7c726d;font-size:13px}
@@ -128,12 +151,52 @@ footer .small{color:#7c726d;font-size:13px}
     </section>
 
     <section class="block">
-      <h2>Members-Only Items</h2>
-      <ul class="clean">
-        <li><strong>Member item one</strong> — short description and price. <!-- EDIT --></li>
-        <li><strong>Member item two</strong> — short description and price. <!-- EDIT --></li>
-        <li><strong>Member item three</strong> — short description and price. <!-- EDIT --></li>
-      </ul>
+      <h2>Pre-Orders — 250th Anniversary Flags</h2>
+      <p class="pre-intro">Members-only pre-order to gauge interest — <strong>no payment due yet</strong>. $40 shipped each, limited to <strong>50 of each</strong>. Reserve yours and we'll reach out to arrange payment when they're ready.</p>
+      <div class="pre-grid">
+        <div class="pre-card">
+          <img src="/images/flagbike.jpg" alt="IVMC 250th Anniversary flag with motorcycle" />
+          <div class="pre-body">
+            <h3>Bike-on-Flag</h3>
+            <div class="pre-desc">250th Anniversary (1776–2026) Iron Vikings Nomad flag with the motorcycle. $40 shipped.</div>
+            <div class="pre-stock" id="stock-flagbike">Checking availability…</div>
+          </div>
+        </div>
+        <div class="pre-card">
+          <img src="/images/flag.jpg" alt="IVMC 250th Anniversary flag" />
+          <div class="pre-body">
+            <h3>Flag</h3>
+            <div class="pre-desc">250th Anniversary (1776–2026) Iron Vikings Nomad flag. $40 shipped.</div>
+            <div class="pre-stock" id="stock-flag">Checking availability…</div>
+          </div>
+        </div>
+      </div>
+      <div class="pre-form">
+        <h3>Reserve a Pre-Order</h3>
+        <div class="frow">
+          <label>Which flag?
+            <select id="pf_item">
+              <option value="flagbike">Bike-on-Flag — $40</option>
+              <option value="flag">Flag — $40</option>
+            </select>
+          </label>
+          <label>Qty
+            <select id="pf_qty"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+          </label>
+        </div>
+        <div class="frow">
+          <label>First Name<input id="pf_first" /></label>
+          <label>Last Name<input id="pf_last" /></label>
+        </div>
+        <label>Road Name<input id="pf_road" placeholder="Optional" /></label>
+        <div class="frow">
+          <label>Email<input id="pf_email" type="email" /></label>
+          <label>Phone<input id="pf_phone" /></label>
+        </div>
+        <label>Notes<textarea id="pf_notes" rows="2" placeholder="Optional"></textarea></label>
+        <button class="btn" id="pf_btn" onclick="submitPreorder()">Register Pre-Order</button>
+        <div class="pre-msg" id="pf_msg"></div>
+      </div>
     </section>
 
     <!-- ====== EDIT ABOVE ====== -->
@@ -174,6 +237,52 @@ try{ if(sessionStorage.getItem("lc_brothers")==="1") show(); }catch(e){}
 // Enter key submits.
 document.getElementById("pw").addEventListener("keydown", function(e){ if(e.key==="Enter") unlock(); });
 document.getElementById("pw").focus();
+
+/* ---- Members-only flag pre-orders (reserves stock in the same Google Sheet) ---- */
+const PRE = {
+  apiUrl: "https://script.google.com/macros/s/AKfycbxmp94oTc17acsZALtTf_2JaFF09kIe35T_psfBp4IxIJOxgUczXP5XtWumgRi_7b9mdw/exec",
+  web3formsKey: "743085e7-2e13-4401-bc00-d0244a150eb3",
+  items: { flagbike:{name:"IVMC Bike-on-Flag (pre-order)",price:40}, flag:{name:"IVMC Flag (pre-order)",price:40} }
+};
+async function loadPreAvail(){
+  try{
+    const r = await fetch(PRE.apiUrl); const a = await r.json();
+    ["flagbike","flag"].forEach(function(id){
+      const el = document.getElementById("stock-"+id); if(!el) return;
+      const p = a.products && a.products[id];
+      el.textContent = p ? (p.remaining>0 ? p.remaining+" of 50 left" : "Fully reserved") : "";
+    });
+  }catch(e){}
+}
+async function submitPreorder(){
+  const g = function(id){ const e=document.getElementById(id); return e? e.value.trim() : ""; };
+  const item=g("pf_item"), qty=parseInt(g("pf_qty"),10)||1;
+  const first=g("pf_first"), last=g("pf_last"), road=g("pf_road"), email=g("pf_email"), phone=g("pf_phone"), notes=g("pf_notes");
+  const msg=document.getElementById("pf_msg");
+  if(!first || !email){ msg.className="pre-msg err"; msg.textContent="Please enter at least your name and email."; return; }
+  const it=PRE.items[item]; const orderRef="PRE-"+Date.now();
+  const fullName = road ? (first+' "'+road+'" '+last) : (first+" "+last);
+  const btn=document.getElementById("pf_btn"); btn.disabled=true; btn.textContent="Submitting…";
+  let conflict=null;
+  try{
+    const res=await fetch(PRE.apiUrl,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body:JSON.stringify({orderRef:orderRef, buyer:{name:fullName,email:email,phone:phone,shipTo:"",notes:"PRE-ORDER"+(notes?(" — "+notes):"")}, items:[{id:item,name:it.name,unitPrice:it.price,qty:qty}]})});
+    const out=await res.json().catch(function(){return {};});
+    if(out && out.success===false && out.conflicts){ conflict=out.conflicts; }
+  }catch(e){}
+  try{
+    await fetch("https://api.web3forms.com/submit",{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},
+      body:JSON.stringify({access_key:PRE.web3formsKey, subject:"Flag PRE-ORDER — "+fullName+" ("+qty+"x "+it.name+")", from_name:"Longship Clan Brothers", email:email, botcheck:"",
+        "Type":"PRE-ORDER (no payment collected)","Order Ref":orderRef,"Item":it.name,"Qty":qty,"Member":fullName,"Email":email,"Phone":phone||"—","Notes":notes||"—"})});
+  }catch(e){}
+  btn.disabled=false; btn.textContent="Register Pre-Order";
+  if(conflict){ msg.className="pre-msg err"; msg.textContent="Sorry — that flag is fully reserved (50 of 50). Try the other, or check back later."; loadPreAvail(); return; }
+  msg.className="pre-msg ok";
+  msg.innerHTML="Pre-order registered! Your reference is <strong>"+orderRef+"</strong>. No payment now — we'll reach out to arrange the $"+(it.price*qty)+" when the flags are ready.";
+  ["pf_first","pf_last","pf_road","pf_email","pf_phone","pf_notes"].forEach(function(id){ const e=document.getElementById(id); if(e) e.value=""; });
+  loadPreAvail();
+}
+loadPreAvail();
 </script>
 </body>
 </html>
