@@ -540,6 +540,10 @@ async function placeOrder(){
   const btn = document.getElementById("placeBtn");
   if(btn){ btn.disabled = true; btn.textContent = "Sending…"; }
 
+  // Best-effort capture of the buyer's public IP (for dispute records).
+  let clientIP = "unknown";
+  try { const ipr = await fetch("https://api.ipify.org?format=json"); const ipj = await ipr.json(); clientIP = ipj.ip || "unknown"; } catch(e){}
+
   // 1) Reserve inventory (numbered pieces + counted stock) via the sheet.
   if(STORE.apiUrl){
     try {
@@ -549,7 +553,7 @@ async function placeOrder(){
       const r = await fetch(STORE.apiUrl, {
         method:"POST",
         headers:{ "Content-Type":"text/plain;charset=utf-8" },
-        body: JSON.stringify({ orderRef, buyer:{ name:fullName, email:info.email, phone:info.phone, shipTo:`${info.addr}, ${info.city}, ${info.state} ${info.zip}`, notes:info.notes }, items: reserveItems })
+        body: JSON.stringify({ orderRef, buyer:{ name:fullName, email:info.email, phone:info.phone, shipTo:`${info.addr}, ${info.city}, ${info.state} ${info.zip}`, notes:(info.notes?info.notes+" | ":"")+"IP: "+clientIP }, items: reserveItems })
       });
       const out = await r.json().catch(()=>({}));
       if(out && out.success===false && out.conflicts){
@@ -584,6 +588,7 @@ async function placeOrder(){
     "Items": itemsText,
     "Total": total,
     "Notes": info.notes || "—",
+    "IP Address": clientIP,
     "Full Order": orderText
   };
   try {

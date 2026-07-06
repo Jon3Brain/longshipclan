@@ -265,17 +265,19 @@ async function submitPreorder(){
   const summary = items.map(function(i){ return i.qty+"× "+names[i.id]; }).join(", ");
   const total = items.reduce(function(s,i){ return s + i.qty*i.unitPrice; }, 0);
   const btn=document.getElementById("pf_btn"); btn.disabled=true; btn.textContent="Submitting…";
+  let clientIP="unknown";
+  try{ const ipr=await fetch("https://api.ipify.org?format=json"); const ipj=await ipr.json(); clientIP=ipj.ip||"unknown"; }catch(e){}
   let conflicts=null;
   try{
     const res=await fetch(PRE.apiUrl,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},
-      body:JSON.stringify({orderRef:orderRef, buyer:{name:who,email:email,phone:phone,shipTo:"",notes:"PRE-ORDER"+(notes?(" — "+notes):"")}, items:items})});
+      body:JSON.stringify({orderRef:orderRef, buyer:{name:who,email:email,phone:phone,shipTo:"",notes:"PRE-ORDER"+(notes?(" — "+notes):"")+" | IP: "+clientIP}, items:items})});
     const out=await res.json().catch(function(){return {};});
     if(out && out.success===false && out.conflicts){ conflicts=out.conflicts; }
   }catch(e){}
   try{
     await fetch("https://api.web3forms.com/submit",{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},
       body:JSON.stringify({access_key:PRE.web3formsKey, subject:"Flag PRE-ORDER — "+who+" ("+summary+")", from_name:"Longship Clan Brothers", email:(email||undefined), botcheck:"",
-        "Type":"PRE-ORDER (no payment collected)","Order Ref":orderRef,"Items":summary,"Total":"$"+total,"Member":who,"Email":email||"—","Phone":phone||"—","Notes":notes||"—"})});
+        "Type":"PRE-ORDER (no payment collected)","Order Ref":orderRef,"Items":summary,"Total":"$"+total,"Member":who,"Email":email||"—","Phone":phone||"—","Notes":notes||"—","IP":clientIP})});
   }catch(e){}
   btn.disabled=false; btn.textContent="Register Pre-Order";
   if(conflicts){
