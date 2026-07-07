@@ -382,6 +382,7 @@ function swapColor(id){
 }
 
 /* ---- Live availability: numbered pieces + counted stock ---- */
+const LOW_STOCK = 10;   // only show the remaining count once it drops below this
 let AVAIL = null;
 async function loadAvailability(){
   if(!STORE.apiUrl) return;
@@ -412,12 +413,12 @@ function applyAvailability(){
       } else {
         sel.innerHTML = `<option value="" disabled selected>Pick your number…</option>` + free.map(n=>`<option value="${n}">No. ${n}</option>`).join("");
         if(addBtn){ addBtn.disabled=false; addBtn.textContent="Add to Cart"; }
-        if(stockEl) stockEl.textContent = `${free.length} available`;
+        if(stockEl) stockEl.textContent = free.length < LOW_STOCK ? `${free.length} available` : "";
       }
     } else if(a && a.type==="counted"){
       const inCart = cart.filter(c=>c.id===p.id).reduce((s,c)=>s+c.qty,0);
       const remaining = a.remaining - inCart;
-      if(stockEl) stockEl.textContent = remaining>0 ? `${remaining} left` : "Sold out";
+      if(stockEl) stockEl.textContent = remaining<=0 ? "Sold out" : (remaining < LOW_STOCK ? `${remaining} available` : "");
       if(addBtn){
         if(remaining<=0){ addBtn.disabled=true; addBtn.textContent="Sold Out"; }
         else { addBtn.disabled=false; addBtn.textContent="Add to Cart"; }
