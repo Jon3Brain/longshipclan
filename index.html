@@ -274,9 +274,9 @@ const STORE = {
   //   colors: (optional) [{name, img}] -> adds a color picker that swaps the photo
   //   sizes:  (optional) ["S","M",...] for apparel
   products: [
-    { id:"coin", cat:"coins", name:"Longship Clan Coin", price:40, badge:"Coin",
+    { id:"coin", cat:"coins", name:"Longship Clan Coin", price:40, badge:"Coin", numbered:true,
       images:["images/coin_front.jpg","images/coin_back.jpg"],
-      desc:"3-inch two-sided challenge coin — Longship Clan on the front, Iron Vikings Nomad on the back." },
+      desc:"3-inch two-sided challenge coin — Longship Clan on the front, Iron Vikings Nomad on the back. Individually numbered." },
 
     { id:"hammer", cat:"coins", name:"Hammer Pendant", price:30, badge:"Numbered", numbered:true,
       images:["images/hammer_front.jpg","images/hammer_back.jpg"],
@@ -403,8 +403,8 @@ function applyAvailability(){
       if(!a){ sel.innerHTML = `<option value="">Numbers unavailable — try later</option>`; if(addBtn) addBtn.disabled=true; return; }
       const taken = new Set((a.taken||[]).map(Number));
       const inCart = new Set(serialsInCart(p.id));
-      const free = [];
-      for(let n=a.from; n<=a.to; n++){ if(!taken.has(n) && !inCart.has(n)) free.push(n); }
+      const all = (a.serials||[]).map(Number);
+      const free = all.filter(n=>!taken.has(n) && !inCart.has(n)).sort((x,y)=>x-y);
       if(free.length===0){
         sel.innerHTML = `<option value="">Sold out</option>`;
         if(addBtn){ addBtn.disabled=true; addBtn.textContent="Sold Out"; }
@@ -412,7 +412,7 @@ function applyAvailability(){
       } else {
         sel.innerHTML = `<option value="" disabled selected>Pick your number…</option>` + free.map(n=>`<option value="${n}">No. ${n}</option>`).join("");
         if(addBtn){ addBtn.disabled=false; addBtn.textContent="Add to Cart"; }
-        if(stockEl) stockEl.textContent = `${free.length} of ${a.to-a.from+1} available`;
+        if(stockEl) stockEl.textContent = `${free.length} of ${all.length} available`;
       }
     } else if(a && a.type==="counted"){
       const inCart = cart.filter(c=>c.id===p.id).reduce((s,c)=>s+c.qty,0);
