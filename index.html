@@ -412,7 +412,7 @@ function applyAvailability(){
       } else {
         sel.innerHTML = `<option value="" disabled selected>Pick your number…</option>` + free.map(n=>`<option value="${n}">No. ${n}</option>`).join("");
         if(addBtn){ addBtn.disabled=false; addBtn.textContent="Add to Cart"; }
-        if(stockEl) stockEl.textContent = `${free.length} of ${all.length} available`;
+        if(stockEl) stockEl.textContent = `${free.length} available`;
       }
     } else if(a && a.type==="counted"){
       const inCart = cart.filter(c=>c.id===p.id).reduce((s,c)=>s+c.qty,0);
