@@ -268,7 +268,8 @@ const STORE = {
     square:  "https://squareup.com"               // <-- "Pay Now" button — TODO: replace with your real Square checkout/payment link
   },
   // Product fields:
-  //   cat:    "swag" | "wear" | "gear"  (groups items into sections)
+  //   cat:      "coins" | "medallions" | "gear" | "stickers"  (must match a CATEGORIES key)
+  //   delivery: (optional) [{name, price}] -> price-changing selector, e.g. pickup vs shipped
   //   img:    main (front) photo
   //   imgBack:(optional) back photo -> adds a "View Back" flip button
   //   colors: (optional) [{name, img}] -> adds a color picker that swaps the photo
@@ -286,6 +287,11 @@ const STORE = {
       images:["images/valkyrie_front.jpg","images/valkyrie_back.jpg"],
       desc:"Winged Valkyrie pendant. 1-1/2″ wide × 2″ tall. Individually numbered." },
 
+    { id:"oathcoin", cat:"coins", name:"Longship Oath Coin", price:40, badge:"Pre-Order", numbered:true,
+      delivery:[{name:"Shipped", price:40},{name:"Picked up", price:35}],
+      images:["images/oathcoin_front.jpg","images/oathcoin_back.jpg"],
+      desc:"3-inch individually numbered coin. The nine noble virtues run around the face; the reverse carries the Vegvísir wayfinder in a ring of runes. Around the outer edge: “Our viking ancestors lived by nine noble virtues. Let our wayfinder guide you on the most noble of paths.”<br><br><strong>Pre-order interest only — no payment required now.</strong> Reserve your number and we'll contact you for payment when they come in." },
+
     { id:"med2", cat:"medallions", name:"2\" Patch Medallion", price:15, badge:"2 inch",
       images:["images/med2_front.jpg","images/med2_back.jpg"],
       desc:"2-inch cast-metal Iron Vikings Nomad medallion. $15 each, or 5 for $60 — set the quantity at checkout." },
@@ -300,6 +306,14 @@ const STORE = {
     { id:"zippo", cat:"gear", name:"Zippo Lighter", price:55, badge:"Lighter",
       images:["images/zippo_front.jpg","images/zippo_back.jpg","images/zippo_bottom.jpg","images/zippo_box.jpg"],
       desc:"Genuine Zippo windproof lighter with the Iron Vikings emblem. Price includes shipping." },
+
+    { id:"flagbike", cat:"gear", name:"IVMC Bike-on-Flag", price:40, badge:"Flag",
+      images:["images/flagbike.jpg"],
+      desc:"250th Anniversary (1776–2026) Iron Vikings Nomad flag with the motorcycle. $40 shipped." },
+
+    { id:"flag", cat:"gear", name:"IVMC Flag", price:40, badge:"Flag",
+      images:["images/flag.jpg"],
+      desc:"250th Anniversary (1776–2026) Iron Vikings Nomad flag. $40 shipped." },
 
     { id:"sticker_longship", cat:"stickers", name:"Longship Sticker", price:3, badge:"3 inch",
       images:["images/sticker_longship.jpg"],
@@ -338,15 +352,23 @@ function cardHTML(p){
   } else if(p.colors){
     opt = `<select id="opt-${p.id}" data-label="Color" onchange="swapColor('${p.id}')">${p.colors.map(c=>`<option value="${c.name}">Color: ${c.name}</option>`).join("")}</select>`;
   }
+  let deliv = "";
+  if(p.delivery){
+    deliv = `<select id="deliv-${p.id}" data-label="Delivery">${p.delivery.map((d,i)=>`<option value="${i}">${d.name} — ${fmt(d.price)}</option>`).join("")}</select>`;
+  }
+  const priceHTML = p.delivery
+    ? `${fmt(Math.min.apply(null,p.delivery.map(d=>d.price)))} – ${fmt(Math.max.apply(null,p.delivery.map(d=>d.price)))}`
+    : fmt(p.price);
   return `<div class="card">
     <div class="thumb">${p.badge?`<span class="tag-badge">${p.badge}</span>`:""}${imgEl}</div>
     ${gallery}
     <div class="body">
       <h3>${p.name}</h3>
       <div class="desc">${p.desc||""}</div>
-      <div class="price">${fmt(p.price)}</div>
+      <div class="price">${priceHTML}</div>
       <div class="stock" id="stock-${p.id}"></div>
       ${opt}
+      ${deliv}
       <button class="add" id="add-${p.id}" onclick="addToCart('${p.id}')">Add to Cart</button>
     </div>
   </div>`;
@@ -432,18 +454,25 @@ function addToCart(id){
   const sel = document.getElementById("opt-"+id);
   const opt = sel ? sel.value : null;
   const optLabel = sel ? sel.dataset.label : null;
+  // price-changing delivery selector (e.g. picked up vs shipped)
+  let unitPrice = p.price, deliv = null;
+  if(p.delivery){
+    const ds = document.getElementById("deliv-"+id);
+    const d = p.delivery[ds ? Number(ds.value) : 0] || p.delivery[0];
+    unitPrice = d.price; deliv = d.name;
+  }
   if(p.numbered){
     if(!opt){ alert("Please pick a number first."); return; }
     const key = id + "|" + opt;
     if(cart.find(c=>c.key===key)) return;        // each number can only be in the cart once
-    cart.push({key, id, name:p.name, price:p.price, opt, optLabel:"Number", qty:1, numbered:true});
+    cart.push({key, id, name:p.name, price:unitPrice, opt, optLabel:"Number", deliv, qty:1, numbered:true});
     save(); applyAvailability(); renderCart(); openCart();
     return;
   }
-  const key = id + (opt?("|"+opt):"");
+  const key = id + (opt?("|"+opt):"") + (deliv?("|"+deliv):"");
   const existing = cart.find(c=>c.key===key);
   if(existing){ existing.qty++; }
-  else { cart.push({key, id, name:p.name, price:p.price, opt, optLabel, qty:1}); }
+  else { cart.push({key, id, name:p.name, price:unitPrice, opt, optLabel, deliv, qty:1}); }
   save(); applyAvailability(); renderCart(); openCart();
 }
 function changeQty(key, d){
@@ -469,6 +498,7 @@ function renderCart(){
       <div class="li-info">
         <div class="li-name">${c.name}</div>
         ${c.opt?`<div class="li-sub">${c.optLabel||"Option"}: ${c.opt}</div>`:""}
+        ${c.deliv?`<div class="li-sub">Delivery: ${c.deliv}</div>`:""}
         <div class="li-price">${fmt(c.price)} each</div>
         <div class="qty">
           ${c.numbered ? `<span>Qty 1</span>` : `<button onclick="changeQty('${c.key}',-1)">&minus;</button><span>${c.qty}</span><button onclick="changeQty('${c.key}',1)">+</button>`}
@@ -520,7 +550,7 @@ function buildOrderText(info, orderRef){
   let t = "LONGSHIP CLAN — NEW ORDER\n============================\n";
   if(orderRef) t += "Order #: " + orderRef + "\n";
   t += "\nITEMS:\n";
-  cart.forEach(c=>{ t += `  ${c.qty} x ${c.name}${c.opt?(" ("+c.opt+")"):""}  —  ${fmt(c.price*c.qty)}\n`; });
+  cart.forEach(c=>{ t += `  ${c.qty} x ${c.name}${c.opt?(" ("+c.opt+")"):""}${c.deliv?(" ["+c.deliv+"]"):""}  —  ${fmt(c.price*c.qty)}\n`; });
   t += `\nTOTAL: ${fmt(cartTotal())}\n\nSHIP TO:\n  ${info.first}${info.road?' "'+info.road+'"':''} ${info.last}\n  ${info.addr}\n  ${info.city}, ${info.state} ${info.zip}\n\nCONTACT:\n  Email: ${info.email}\n  Phone: ${info.phone}\n`;
   if(info.notes) t += `\nNOTES:\n  ${info.notes}\n`;
   return t;
@@ -537,7 +567,7 @@ async function placeOrder(){
   const fullName = info.road ? `${info.first} "${info.road}" ${info.last}` : `${info.first} ${info.last}`;
   const orderText = buildOrderText(info, orderRef);
   const total = fmt(cartTotal());
-  const itemsText = cart.map(c=>`${c.qty} x ${c.name}${c.opt?(" ("+c.opt+")"):""} — ${fmt(c.price*c.qty)}`).join("\n");
+  const itemsText = cart.map(c=>`${c.qty} x ${c.name}${c.opt?(" ("+c.opt+")"):""}${c.deliv?(" ["+c.deliv+"]"):""} — ${fmt(c.price*c.qty)}`).join("\n");
   const btn = document.getElementById("placeBtn");
   if(btn){ btn.disabled = true; btn.textContent = "Sending…"; }
 

@@ -69,30 +69,7 @@ ul.clean li:last-child{border-bottom:none}
 ul.clean li strong{color:var(--text)}
 .pay-line{color:var(--muted);font-size:15px;margin-top:8px}
 .pay-line strong{color:var(--accent);font-family:var(--head);letter-spacing:.04em}
-.pre-intro{color:var(--muted);font-size:15px;margin-bottom:18px}
-.pre-intro strong{color:var(--text)}
-.pre-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px}
-.pre-card{background:var(--panel);border:1px solid var(--line);overflow:hidden}
-.pre-card img{width:100%;height:auto;display:block;border-bottom:1px solid var(--line)}
-.pre-card .pre-body{padding:14px 16px}
-.pre-card h3{font-size:18px;margin-bottom:6px}
-.pre-card .pre-desc{color:var(--muted);font-size:14px;margin-bottom:8px}
-.pre-card .pre-stock{font-family:var(--head);text-transform:uppercase;letter-spacing:.06em;font-size:13px;color:var(--accent)}
-.pre-sub{font-family:var(--head);text-transform:uppercase;letter-spacing:.06em;font-size:16px;color:var(--accent);margin:26px 0 12px}
-.pre-form{background:var(--panel);border:1px solid var(--line);padding:20px 22px}
-.pre-form h3{font-size:20px;margin-bottom:14px;color:var(--accent)}
-.pre-form label{display:block;font-family:var(--head);text-transform:uppercase;font-size:12px;letter-spacing:.06em;color:var(--muted);margin-bottom:12px}
-.pre-form input,.pre-form select,.pre-form textarea{width:100%;background:var(--bg-near-black);border:1px solid var(--line);color:var(--text);padding:10px 12px;font-family:var(--body);font-size:15px;margin-top:5px}
-.pre-form input:focus,.pre-form select:focus,.pre-form textarea:focus{outline:none;border-color:var(--accent)}
-.pre-form .frow{display:flex;gap:14px}
-.pre-form .frow label{flex:1}
-.pre-form .btn{background:var(--accent);color:#100D0E;font-family:var(--head);text-transform:uppercase;font-weight:700;letter-spacing:.06em;padding:13px 26px;font-size:16px;border:2px solid var(--accent);cursor:pointer;transition:.15s;width:100%;margin-top:4px}
-.pre-form .btn:hover{background:transparent;color:var(--accent)}
-.pre-form .btn:disabled{opacity:.5;cursor:not-allowed}
-.pre-msg{margin-top:12px;font-size:14px;min-height:18px}
-.pre-msg.ok,.pre-msg.err{color:var(--accent-hi)}
-.pre-msg strong{color:var(--text)}
-@media(max-width:640px){.pre-grid{grid-template-columns:1fr}.pre-form .frow{flex-direction:column;gap:0}}
+@media(max-width:640px){.pre-form .frow{flex-direction:column;gap:0}}
 footer{background:var(--bg-near-black);border-top:2px solid var(--accent);padding:34px 0;text-align:center;margin-top:10px}
 footer .credo{color:var(--accent);font-family:var(--head);text-transform:uppercase;letter-spacing:.15em;font-size:15px;margin-bottom:10px}
 footer .small{color:#7c726d;font-size:13px}
@@ -151,71 +128,6 @@ footer .small{color:#7c726d;font-size:13px}
       </div>
     </section>
 
-    <section class="block">
-      <h2>Pre-Orders</h2>
-      <p class="pre-intro">Members-only pre-orders to gauge interest — <strong>no payment due yet</strong>. Reserve yours and we'll reach out to arrange payment when they're ready.</p>
-      <div class="pre-grid">
-        <div class="pre-card">
-          <img src="/images/flagbike.jpg" alt="IVMC 250th Anniversary flag with motorcycle" />
-          <div class="pre-body">
-            <h3>Bike-on-Flag</h3>
-            <div class="pre-desc">250th Anniversary (1776–2026) Iron Vikings Nomad flag with the motorcycle. $40 shipped.</div>
-            <div class="pre-stock" id="stock-flagbike">Checking availability…</div>
-          </div>
-        </div>
-        <div class="pre-card">
-          <img src="/images/flag.jpg" alt="IVMC 250th Anniversary flag" />
-          <div class="pre-body">
-            <h3>Flag</h3>
-            <div class="pre-desc">250th Anniversary (1776–2026) Iron Vikings Nomad flag. $40 shipped.</div>
-            <div class="pre-stock" id="stock-flag">Checking availability…</div>
-          </div>
-        </div>
-      </div>
-      <h3 class="pre-sub">Longship Oath Coin</h3>
-      <div class="pre-grid">
-        <div class="pre-card">
-          <img src="/images/oathcoin_front.jpg" alt="Longship Oath coin, front" />
-          <div class="pre-body">
-            <h3>Longship Oath Coin</h3>
-            <div class="pre-desc">3&quot; Longship Oath coin pre-order interest. No payment due at this time. Put in your info, reserve your number, and when they come in, you will be contacted for payment.<br><br><strong>$35 picked up &middot; $40 shipped.</strong> Individually numbered, 100 total. Around the outer edge: &ldquo;Our viking ancestors lived by nine noble virtues. Let our wayfinder guide you on the most noble of paths.&rdquo;</div>
-            <div class="pre-stock" id="stock-oathcoin">Checking availability&hellip;</div>
-          </div>
-        </div>
-        <div class="pre-card">
-          <img src="/images/oathcoin_back.jpg" alt="Longship Oath coin, reverse" />
-          <div class="pre-body">
-            <h3>Reverse</h3>
-            <div class="pre-desc">The Vegv&iacute;sir wayfinder inside a ring of runes. The nine virtues &mdash; Perseverance, Courage, Truth, Honor, Fidelity, Discipline, Hospitality, Industriousness, Self-Reliance &mdash; run around the face.</div>
-          </div>
-        </div>
-      </div>
-      <div class="pre-form">
-        <h3>Reserve a Pre-Order</h3>
-        <p class="pre-desc" style="margin-bottom:10px">Flags are $40 each — leave a field at 0 to skip it. For the coin, pick your number and how you want it; leave the number blank to skip the coin.</p>
-        <div class="frow">
-          <label>Bike-on-Flag — Qty<input id="pf_qty_flagbike" type="number" min="0" value="0" /></label>
-          <label>Flag — Qty<input id="pf_qty_flag" type="number" min="0" value="0" /></label>
-        </div>
-        <div class="frow">
-          <label>Oath Coin — Your Number<select id="pf_num_oathcoin"><option value="">Loading numbers…</option></select></label>
-          <label>Oath Coin — Delivery<select id="pf_deliv_oathcoin"><option value="shipped">Shipped — $40</option><option value="pickup">Picked up — $35</option></select></label>
-        </div>
-        <div class="frow">
-          <label>First Name<input id="pf_first" /></label>
-          <label>Last Name<input id="pf_last" /></label>
-        </div>
-        <label>Road Name<input id="pf_road" placeholder="Optional" /></label>
-        <div class="frow">
-          <label>Email<input id="pf_email" type="email" /></label>
-          <label>Phone<input id="pf_phone" /></label>
-        </div>
-        <label>Notes<textarea id="pf_notes" rows="2" placeholder="Optional"></textarea></label>
-        <button class="btn" id="pf_btn" onclick="submitPreorder()">Register Pre-Order</button>
-        <div class="pre-msg" id="pf_msg"></div>
-      </div>
-    </section>
-
     <!-- ====== EDIT ABOVE ====== -->
 
   </div>
@@ -255,100 +167,6 @@ try{ if(sessionStorage.getItem("lc_brothers")==="1") show(); }catch(e){}
 document.getElementById("pw").addEventListener("keydown", function(e){ if(e.key==="Enter") unlock(); });
 document.getElementById("pw").focus();
 
-/* ---- Members-only flag pre-orders (reserves stock in the same Google Sheet) ---- */
-const PRE = {
-  apiUrl: "https://script.google.com/macros/s/AKfycbxmp94oTc17acsZALtTf_2JaFF09kIe35T_psfBp4IxIJOxgUczXP5XtWumgRi_7b9mdw/exec",
-  web3formsKey: "743085e7-2e13-4401-bc00-d0244a150eb3",
-  items: { flagbike:{name:"IVMC Bike-on-Flag (pre-order)",price:40}, flag:{name:"IVMC Flag (pre-order)",price:40},
-           oathcoin:{name:"Longship Oath Coin (pre-order)", pickup:35, shipped:40, total:100} }
-};
-async function loadPreAvail(){
-  try{
-    const r = await fetch(PRE.apiUrl); const a = await r.json();
-    ["flagbike","flag"].forEach(function(id){
-      const el = document.getElementById("stock-"+id); if(!el) return;
-      const p = a.products && a.products[id];
-      el.textContent = p ? (p.remaining>0 ? p.remaining+" of 50 left" : "Fully reserved") : "";
-    });
-    // Oath Coin is a numbered piece: populate the reservable numbers
-    const oc = a.products && a.products["oathcoin"];
-    const sel = document.getElementById("pf_num_oathcoin");
-    const ocEl = document.getElementById("stock-oathcoin");
-    if(sel){
-      if(!oc){
-        sel.innerHTML = '<option value="">Numbers unavailable \u2014 try later</option>';
-        if(ocEl) ocEl.textContent = "";
-      } else {
-        const taken = new Set((oc.taken||[]).map(Number));
-        const free = (oc.serials||[]).map(Number).filter(function(n){ return !taken.has(n); }).sort(function(x,y){ return x-y; });
-        const tot = PRE.items.oathcoin.total;
-        if(!free.length){
-          sel.innerHTML = '<option value="">Fully reserved</option>';
-          if(ocEl) ocEl.textContent = "Fully reserved";
-        } else {
-          sel.innerHTML = '<option value="" selected>No coin \u2014 skip</option>' + free.map(function(n){ return '<option value="'+n+'">No. '+n+'</option>'; }).join("");
-          if(ocEl) ocEl.textContent = free.length+" of "+tot+" left";
-        }
-      }
-    }
-  }catch(e){}
-}
-async function submitPreorder(){
-  const g = function(id){ const e=document.getElementById(id); return e? e.value.trim() : ""; };
-  const qb = Math.max(0, parseInt(g("pf_qty_flagbike"),10)||0);
-  const qf = Math.max(0, parseInt(g("pf_qty_flag"),10)||0);
-  const coinNo = parseInt(g("pf_num_oathcoin"),10) || 0;
-  const coinDeliv = g("pf_deliv_oathcoin") || "shipped";
-  const first=g("pf_first"), last=g("pf_last"), road=g("pf_road"), email=g("pf_email"), phone=g("pf_phone"), notes=g("pf_notes");
-  const msg=document.getElementById("pf_msg");
-  const items=[];
-  if(qb>0) items.push({id:"flagbike", name:PRE.items.flagbike.name, unitPrice:PRE.items.flagbike.price, qty:qb});
-  if(qf>0) items.push({id:"flag", name:PRE.items.flag.name, unitPrice:PRE.items.flag.price, qty:qf});
-  if(coinNo>0) items.push({id:"oathcoin", name:PRE.items.oathcoin.name,
-                           unitPrice:(coinDeliv==="pickup"? PRE.items.oathcoin.pickup : PRE.items.oathcoin.shipped),
-                           serial:coinNo});
-  if(!items.length){ msg.className="pre-msg err"; msg.textContent="Pick a coin number or enter a flag quantity."; return; }
-  const orderRef="PRE-"+Date.now();
-  const fullName = road ? (first+' "'+road+'" '+last) : (first+" "+last);
-  const who = fullName.trim() || "(no name given)";
-  const names = {flagbike:"Bike-on-Flag", flag:"Flag", oathcoin:"Oath Coin"};
-  const summary = items.map(function(i){ return i.serial!=null ? (names[i.id]+" No. "+i.serial) : (i.qty+"× "+names[i.id]); }).join(", ");
-  const total = items.reduce(function(s,i){ return s + (i.serial!=null ? i.unitPrice : i.qty*i.unitPrice); }, 0);
-  const btn=document.getElementById("pf_btn"); btn.disabled=true; btn.textContent="Submitting…";
-  let clientIP="unknown";
-  try{ const ipr=await fetch("https://api.ipify.org?format=json"); const ipj=await ipr.json(); clientIP=ipj.ip||"unknown"; }catch(e){}
-  let conflicts=null;
-  try{
-    const res=await fetch(PRE.apiUrl,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},
-      body:JSON.stringify({orderRef:orderRef, buyer:{name:who,email:email,phone:phone,shipTo:"",notes:"PRE-ORDER"+(notes?(" — "+notes):"")+(coinNo>0?(" | Coin No."+coinNo+" "+(coinDeliv==="pickup"?"PICKED UP $35":"SHIPPED $40")):"")+" | IP: "+clientIP}, items:items})});
-    const out=await res.json().catch(function(){return {};});
-    if(out && out.success===false && out.conflicts){ conflicts=out.conflicts; }
-  }catch(e){}
-  try{
-    await fetch("https://api.web3forms.com/submit",{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},
-      body:JSON.stringify({access_key:PRE.web3formsKey, subject:"PRE-ORDER — "+who+" ("+summary+")", from_name:"Longship Clan Brothers", email:(email||undefined), botcheck:"",
-        "Type":"PRE-ORDER (no payment collected)","Order Ref":orderRef,"Items":summary,"Total":"$"+total,"Member":who,"Email":email||"—","Phone":phone||"—","Notes":notes||"—","Coin Delivery":(coinNo>0?(coinDeliv==="pickup"?"Picked up ($35)":"Shipped ($40)"):"—"),"IP":clientIP})});
-  }catch(e){}
-  btn.disabled=false; btn.textContent="Register Pre-Order";
-  if(conflicts){
-    const lines = conflicts.map(function(c){
-      const nm = names[c.id]||c.id;
-      if(c.reason==="serial_taken")   return nm+" No. "+c.serial+" was just taken — pick another";
-      if(c.reason==="invalid_serial") return nm+" — that number isn't available";
-      return nm + (c.reason==="insufficient_stock" ? (" — only "+c.remaining+" left") : " — unavailable");
-    });
-    msg.className="pre-msg err"; msg.textContent="Couldn't reserve: "+lines.join("; ")+". Nothing was reserved — adjust quantities and try again."; loadPreAvail(); return;
-  }
-  msg.className="pre-msg ok";
-  msg.innerHTML="Pre-order registered! Reference <strong>"+orderRef+"</strong> — "+summary+". No payment now; we'll reach out to arrange the $"+total+" when they come in.";
-  ["pf_first","pf_last","pf_road","pf_email","pf_phone","pf_notes"].forEach(function(id){ const e=document.getElementById(id); if(e) e.value=""; });
-  const b=document.getElementById("pf_qty_flagbike"); if(b) b.value="0";
-  const f=document.getElementById("pf_qty_flag"); if(f) f.value="0";
-  const cn=document.getElementById("pf_num_oathcoin"); if(cn) cn.value="";
-  const cd=document.getElementById("pf_deliv_oathcoin"); if(cd) cd.value="shipped";
-  loadPreAvail();
-}
-loadPreAvail();
 </script>
 </body>
 </html>
