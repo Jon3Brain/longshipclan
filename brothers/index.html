@@ -70,6 +70,30 @@ ul.clean li strong{color:var(--text)}
 .pay-line{color:var(--muted);font-size:15px;margin-top:8px}
 .pay-line strong{color:var(--accent);font-family:var(--head);letter-spacing:.04em}
 @media(max-width:640px){.pre-form .frow{flex-direction:column;gap:0}}
+.pre-intro{color:var(--muted);font-size:15px;margin-bottom:18px}
+.pre-intro strong{color:var(--text)}
+.pre-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px}
+.pre-card{background:var(--panel);border:1px solid var(--line);overflow:hidden}
+.pre-card img{width:100%;height:auto;display:block;border-bottom:1px solid var(--line)}
+.pre-card .pre-body{padding:14px 16px}
+.pre-card h3{font-size:18px;margin-bottom:6px}
+.pre-card .pre-desc{color:var(--muted);font-size:14px;margin-bottom:8px}
+.pre-card .pre-stock{font-family:var(--head);text-transform:uppercase;letter-spacing:.06em;font-size:13px;color:var(--accent)}
+.pre-form{background:var(--panel);border:1px solid var(--line);padding:20px 22px}
+.pre-form h3{font-size:20px;margin-bottom:14px;color:var(--accent)}
+.pre-form label{display:block;font-family:var(--head);text-transform:uppercase;font-size:12px;letter-spacing:.06em;color:var(--muted);margin-bottom:12px}
+.pre-form input,.pre-form select,.pre-form textarea{width:100%;background:var(--bg-near-black);border:1px solid var(--line);color:var(--text);padding:10px 12px;font-family:var(--body);font-size:15px;margin-top:5px}
+.pre-form input:focus,.pre-form select:focus,.pre-form textarea:focus{outline:none;border-color:var(--accent)}
+.pre-form .frow{display:flex;gap:14px}
+.pre-form .frow label{flex:1}
+.pre-form .btn{background:var(--accent);color:#100D0E;font-family:var(--head);text-transform:uppercase;font-weight:700;letter-spacing:.06em;padding:13px 26px;font-size:16px;border:2px solid var(--accent);cursor:pointer;transition:.15s;width:100%;margin-top:4px}
+.pre-form .btn:hover{background:transparent;color:var(--accent)}
+.pre-form .btn:disabled{opacity:.5;cursor:not-allowed}
+.pre-msg{margin-top:12px;font-size:14px;min-height:18px}
+.pre-msg.ok,.pre-msg.err{color:var(--accent-hi)}
+.pre-msg strong{color:var(--text)}
+@media(max-width:640px){.pre-grid{grid-template-columns:1fr}.pre-form .frow{flex-direction:column;gap:0}}
+
 footer{background:var(--bg-near-black);border-top:2px solid var(--accent);padding:34px 0;text-align:center;margin-top:10px}
 footer .credo{color:var(--accent);font-family:var(--head);text-transform:uppercase;letter-spacing:.15em;font-size:15px;margin-bottom:10px}
 footer .small{color:#7c726d;font-size:13px}
@@ -128,6 +152,49 @@ footer .small{color:#7c726d;font-size:13px}
       </div>
     </section>
 
+    <section class="block">
+      <h2>Members-Only — 250th Anniversary Flags</h2>
+      <p class="pre-intro">These are <strong>in hand and ready</strong> — $40 each, members only. Put your order in below and we'll sort out payment with you directly. Nothing is charged on this page.</p>
+      <div class="pre-grid">
+        <div class="pre-card">
+          <img src="/images/flagbike.jpg" alt="IVMC 250th Anniversary flag with motorcycle" />
+          <div class="pre-body">
+            <h3>Bike-on-Flag</h3>
+            <div class="pre-desc">250th Anniversary (1776–2026) Iron Vikings Nomad flag with the motorcycle. $40.</div>
+            <div class="pre-stock" id="stock-flagbike">Checking availability…</div>
+          </div>
+        </div>
+        <div class="pre-card">
+          <img src="/images/flag.jpg" alt="IVMC 250th Anniversary flag" />
+          <div class="pre-body">
+            <h3>Flag</h3>
+            <div class="pre-desc">250th Anniversary (1776–2026) Iron Vikings Nomad flag. $40.</div>
+            <div class="pre-stock" id="stock-flag">Checking availability…</div>
+          </div>
+        </div>
+      </div>
+      <div class="pre-form">
+        <h3>Place a Member Order</h3>
+        <p class="pre-desc" style="margin-bottom:10px">$40 each — leave a field at 0 to skip it.</p>
+        <div class="frow">
+          <label>Bike-on-Flag — Qty<input id="pf_qty_flagbike" type="number" min="0" value="0" /></label>
+          <label>Flag — Qty<input id="pf_qty_flag" type="number" min="0" value="0" /></label>
+        </div>
+        <div class="frow">
+          <label>First Name<input id="pf_first" /></label>
+          <label>Last Name<input id="pf_last" /></label>
+        </div>
+        <label>Road Name<input id="pf_road" placeholder="Optional" /></label>
+        <div class="frow">
+          <label>Email<input id="pf_email" type="email" /></label>
+          <label>Phone<input id="pf_phone" /></label>
+        </div>
+        <label>Notes<textarea id="pf_notes" rows="2" placeholder="Optional"></textarea></label>
+        <button class="btn" id="pf_btn" onclick="submitFlagOrder()">Place Order</button>
+        <div class="pre-msg" id="pf_msg"></div>
+      </div>
+    </section>
+
     <!-- ====== EDIT ABOVE ====== -->
 
   </div>
@@ -167,6 +234,69 @@ try{ if(sessionStorage.getItem("lc_brothers")==="1") show(); }catch(e){}
 document.getElementById("pw").addEventListener("keydown", function(e){ if(e.key==="Enter") unlock(); });
 document.getElementById("pw").focus();
 
+/* ---- Members-only flag orders (reserves stock in the same Google Sheet) ---- */
+const FLAGS = {
+  apiUrl: "https://script.google.com/macros/s/AKfycbxmp94oTc17acsZALtTf_2JaFF09kIe35T_psfBp4IxIJOxgUczXP5XtWumgRi_7b9mdw/exec",
+  web3formsKey: "743085e7-2e13-4401-bc00-d0244a150eb3",
+  items: { flagbike:{name:"IVMC Bike-on-Flag (pre-order)",price:40,label:"Bike-on-Flag"},
+           flag:{name:"IVMC Flag (pre-order)",price:40,label:"Flag"} }
+};
+async function loadFlagAvail(){
+  try{
+    const r = await fetch(FLAGS.apiUrl); const a = await r.json();
+    Object.keys(FLAGS.items).forEach(function(id){
+      const el = document.getElementById("stock-"+id); if(!el) return;
+      const p = a.products && a.products[id];
+      el.textContent = p ? (p.remaining>0 ? p.remaining+" left" : "Sold out") : "";
+    });
+  }catch(e){}
+}
+async function submitFlagOrder(){
+  const g = function(id){ const e=document.getElementById(id); return e? e.value.trim() : ""; };
+  const qb = Math.max(0, parseInt(g("pf_qty_flagbike"),10)||0);
+  const qf = Math.max(0, parseInt(g("pf_qty_flag"),10)||0);
+  const first=g("pf_first"), last=g("pf_last"), road=g("pf_road"), email=g("pf_email"), phone=g("pf_phone"), notes=g("pf_notes");
+  const msg=document.getElementById("pf_msg");
+  const items=[];
+  if(qb>0) items.push({id:"flagbike", name:FLAGS.items.flagbike.name, unitPrice:FLAGS.items.flagbike.price, qty:qb});
+  if(qf>0) items.push({id:"flag", name:FLAGS.items.flag.name, unitPrice:FLAGS.items.flag.price, qty:qf});
+  if(!items.length){ msg.className="pre-msg err"; msg.textContent="Enter a quantity for at least one flag."; return; }
+  const orderRef="MBR-"+Date.now();
+  const fullName = road ? (first+' "'+road+'" '+last) : (first+" "+last);
+  const who = fullName.trim() || "(no name given)";
+  const summary = items.map(function(i){ return i.qty+"\u00d7 "+FLAGS.items[i.id].label; }).join(", ");
+  const total = items.reduce(function(s,i){ return s + i.qty*i.unitPrice; }, 0);
+  const btn=document.getElementById("pf_btn"); btn.disabled=true; btn.textContent="Submitting\u2026";
+  let clientIP="unknown";
+  try{ const ipr=await fetch("https://api.ipify.org?format=json"); const ipj=await ipr.json(); clientIP=ipj.ip||"unknown"; }catch(e){}
+  let conflicts=null;
+  try{
+    const res=await fetch(FLAGS.apiUrl,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body:JSON.stringify({orderRef:orderRef, buyer:{name:who,email:email,phone:phone,shipTo:"",notes:"MEMBER ORDER"+(notes?(" \u2014 "+notes):"")+" | IP: "+clientIP}, items:items})});
+    const out=await res.json().catch(function(){return {};});
+    if(out && out.success===false && out.conflicts){ conflicts=out.conflicts; }
+  }catch(e){}
+  try{
+    await fetch("https://api.web3forms.com/submit",{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},
+      body:JSON.stringify({access_key:FLAGS.web3formsKey, subject:"MEMBER FLAG ORDER \u2014 "+who+" ("+summary+")", from_name:"Longship Clan Brothers", email:(email||undefined), botcheck:"",
+        "Type":"Member order (no payment collected)","Order Ref":orderRef,"Items":summary,"Total":"$"+total,"Member":who,"Email":email||"\u2014","Phone":phone||"\u2014","Notes":notes||"\u2014","IP":clientIP})});
+  }catch(e){}
+  btn.disabled=false; btn.textContent="Place Order";
+  if(conflicts){
+    const lines = conflicts.map(function(c){
+      const nm = (FLAGS.items[c.id] && FLAGS.items[c.id].label) || c.id;
+      return nm + (c.reason==="insufficient_stock" ? (" \u2014 only "+c.remaining+" left") : " \u2014 unavailable");
+    });
+    msg.className="pre-msg err"; msg.textContent="Couldn't reserve: "+lines.join("; ")+". Nothing was reserved \u2014 adjust quantities and try again."; loadFlagAvail(); return;
+  }
+  msg.className="pre-msg ok";
+  msg.innerHTML="Order placed! Reference <strong>"+orderRef+"</strong> \u2014 "+summary+". Nothing charged here; we'll reach out to arrange the $"+total+".";
+  ["pf_first","pf_last","pf_road","pf_email","pf_phone","pf_notes"].forEach(function(id){ const e=document.getElementById(id); if(e) e.value=""; });
+  const bq=document.getElementById("pf_qty_flagbike"); if(bq) bq.value="0";
+  const fq=document.getElementById("pf_qty_flag"); if(fq) fq.value="0";
+  loadFlagAvail();
+}
+loadFlagAvail();
 </script>
 </body>
 </html>
