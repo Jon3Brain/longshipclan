@@ -69,6 +69,26 @@ ul.clean li:last-child{border-bottom:none}
 ul.clean li strong{color:var(--text)}
 .pay-line{color:var(--muted);font-size:15px;margin-top:8px}
 .pay-line strong{color:var(--accent);font-family:var(--head);letter-spacing:.04em}
+/* ---- Dues ---- */
+.rate-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+.rate-card{background:var(--panel);border:1px solid var(--line);padding:16px 18px;text-align:center}
+.rate-card.lead{border-color:var(--accent)}
+.rate-card h3{font-size:16px;margin-bottom:4px}
+.rate-card .big{font-family:var(--body);color:var(--accent);font-size:30px;font-weight:700;line-height:1.1;letter-spacing:0}
+.rate-card .who{color:var(--muted);font-size:13px;margin-top:6px}
+.rate-note{color:var(--muted);font-size:14px;margin-bottom:20px}
+.rate-note strong{color:var(--text)}
+.qr-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.qr-card{background:var(--panel);border:1px solid var(--line);padding:16px;text-align:center}
+.qr-card img{width:100%;max-width:230px;margin:0 auto 10px;background:#fff;padding:10px;border-radius:6px}
+.qr-card .handle{font-family:var(--head);color:var(--accent);font-size:19px;letter-spacing:.04em}
+.qr-card .who{color:var(--muted);font-size:13px;margin-top:2px}
+.dues-line{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);color:var(--muted);font-size:15px}
+.dues-line:last-child{border-bottom:none}
+.dues-line strong{color:var(--text)}
+.dues-total{background:var(--bg-near-black);border:1px solid var(--accent);padding:12px 14px;margin:4px 0 14px}
+.dues-total .amt{font-family:var(--body);color:var(--accent);font-size:26px;font-weight:700;letter-spacing:0;white-space:nowrap}
+@media(max-width:640px){.rate-grid{grid-template-columns:1fr}.qr-grid{grid-template-columns:1fr}}
 @media(max-width:640px){.pre-form .frow{flex-direction:column;gap:0}}
 .pre-intro{color:var(--muted);font-size:15px;margin-bottom:18px}
 .pre-intro strong{color:var(--text)}
@@ -143,12 +163,67 @@ footer .small{color:#7c726d;font-size:13px}
 
     <section class="block">
       <h2>Clan Dues</h2>
-      <div class="card">
-        <h3>Annual Dues</h3>
-        <div class="big">$00 / year</div>
-        <p>Due each January. <!-- EDIT: set the amount, schedule, and any late terms --></p>
-        <div class="pay-line">Pay by <strong>Venmo</strong> @LongshipClan &nbsp;·&nbsp; <strong>Cash App</strong> $LongshipClan
-          <!-- EDIT: confirm these handles match how you collect dues --></div>
+
+      <div class="rate-grid">
+        <div class="rate-card lead">
+          <h3>Monthly</h3>
+          <div class="big">$30</div>
+          <div class="who">per month — prospects &amp; newly patched</div>
+        </div>
+        <div class="rate-card" id="rate-quarterly">
+          <h3>Quarterly</h3>
+          <div class="big">$90</div>
+          <div class="who">per quarter — patched, elected 1/1</div>
+        </div>
+        <div class="rate-card">
+          <h3>Yearly</h3>
+          <div class="big">$340</div>
+          <div class="who">per year — patched, elected 1/1</div>
+        </div>
+      </div>
+
+      <p class="rate-note">Prospects and newly patched brothers are <strong>monthly, $30</strong> — no exceptions. Pay ahead if you want; it's still recorded month by month. Patched brothers elect quarterly or yearly <strong>on January 1st</strong>. Your plan is set on the roster, not here.</p>
+
+      <div class="qr-grid">
+        <div class="qr-card">
+          <a href="https://www.paypal.com/qrcodes/venmocs/980d1fb0-89bd-439c-be98-106b2a1f854e" target="_blank" rel="noopener">
+            <img src="/images/venmo_qr.png" alt="Venmo QR code for Longship Clan IVMC" />
+          </a>
+          <div class="handle">Venmo &nbsp;@longshipclan</div>
+          <div class="who">Longship Clan IVMC</div>
+        </div>
+        <div class="qr-card">
+          <a href="https://cash.app/$longshipclan" target="_blank" rel="noopener">
+            <img src="/images/cashapp_qr.png" alt="Cash App QR code for Longship Clan IVMC" />
+          </a>
+          <div class="handle">Cash App &nbsp;$longshipclan</div>
+          <div class="who">Longship Clan IVMC</div>
+        </div>
+      </div>
+
+      <div class="pre-form">
+        <h3>Report a Dues Payment</h3>
+        <p class="pre-desc" style="margin-bottom:14px">Send the money first with Venmo or Cash App above, then log it here so it lands on the books. Nothing is charged on this page.</p>
+
+        <label>Who are you?<select id="du_member"><option value="">Loading roster…</option></select></label>
+        <div class="dues-line" id="du_planline" hidden><span>Your plan</span><strong id="du_plantext">—</strong></div>
+
+        <div class="frow">
+          <label>Starting period<select id="du_start"></select></label>
+          <label>How many<select id="du_units"></select></label>
+        </div>
+
+        <div class="dues-total">
+          <div class="dues-line" style="border:none;padding:0"><span id="du_breakdown">Pick your name to begin.</span><span class="amt" id="du_total">$0</span></div>
+        </div>
+
+        <div class="frow">
+          <label>Paid with<select id="du_method"></select></label>
+          <label>Date you sent it<input id="du_paidon" type="date" /></label>
+        </div>
+        <label>Notes<textarea id="du_notes" rows="2" placeholder="Optional — Venmo note, who you handed cash to, etc."></textarea></label>
+        <button class="btn" id="du_btn" onclick="submitDues()" disabled>Report Payment</button>
+        <div class="pre-msg" id="du_msg"></div>
       </div>
     </section>
 
@@ -297,6 +372,172 @@ async function submitFlagOrder(){
   loadFlagAvail();
 }
 loadFlagAvail();
+
+/* ---- Clan dues: roster dropdown + self-reported payments ---- */
+const DUESAPI = {
+  url: "https://script.google.com/macros/s/AKfycbxmp94oTc17acsZALtTf_2JaFF09kIe35T_psfBp4IxIJOxgUczXP5XtWumgRi_7b9mdw/exec",
+  web3formsKey: "743085e7-2e13-4401-bc00-d0244a150eb3",
+  info: null
+};
+function duesEl(id){ return document.getElementById(id); }
+function duesMember(){
+  if(!DUESAPI.info) return null;
+  const id = duesEl("du_member").value;
+  return DUESAPI.info.members.filter(function(m){ return m.id===id; })[0] || null;
+}
+// Build the "starting period" options to match the member's plan.
+function duesPeriodOptions(plan){
+  const now = new Date(), y = now.getFullYear(), mo = now.getMonth(); // 0-based
+  const out = [];
+  if(plan==="Yearly"){
+    for(var i=0;i<2;i++) out.push({v:String(y+i), t:String(y+i)});
+  } else if(plan==="Quarterly"){
+    var q = Math.floor(mo/3);                     // 0-based current quarter
+    for(var j=-1;j<5;j++){
+      var t=q+j, yy=y+Math.floor(t/4), qq=((t%4)+4)%4+1;
+      out.push({v:yy+"-Q"+qq, t:yy+" Q"+qq});
+    }
+  } else {
+    var names=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    for(var k=-2;k<12;k++){
+      var yy2=y+Math.floor((mo+k)/12), mm=(((mo+k)%12)+12)%12;
+      out.push({v:yy2+"-"+("0"+(mm+1)).slice(-2), t:names[mm]+" "+yy2});
+    }
+  }
+  return out;
+}
+function duesMaxUnits(plan){
+  const cap = (DUESAPI.info && DUESAPI.info.maxPrepay) || 12;
+  if(plan==="Yearly") return Math.min(2, cap);
+  if(plan==="Quarterly") return Math.min(4, cap);
+  return Math.min(12, cap);
+}
+function duesUnitWord(plan, n){
+  const w = plan==="Yearly" ? "year" : (plan==="Quarterly" ? "quarter" : "month");
+  return n+" "+w+(n===1?"":"s");
+}
+function duesRefresh(){
+  const m = duesMember(), msg = duesEl("du_msg");
+  const btn = duesEl("du_btn"), pl = duesEl("du_planline");
+  if(!m){
+    pl.hidden = true; btn.disabled = true;
+    duesEl("du_breakdown").textContent = "Pick your name to begin.";
+    duesEl("du_total").textContent = "$0";
+    duesEl("du_start").innerHTML = ""; duesEl("du_units").innerHTML = "";
+    return;
+  }
+  pl.hidden = false;
+  duesEl("du_plantext").textContent = m.plan+" — $"+m.rate+" per "+
+    (m.plan==="Yearly"?"year":(m.plan==="Quarterly"?"quarter":"month"))+"  ("+m.status+")";
+
+  // (Re)build period + count selectors for this member's plan.
+  const startSel = duesEl("du_start"), prevStart = startSel.value;
+  startSel.innerHTML = "";
+  duesPeriodOptions(m.plan).forEach(function(o){
+    const el=document.createElement("option"); el.value=o.v; el.textContent=o.t; startSel.appendChild(el);
+  });
+  // Default to the current period (index 2 for monthly, 1 for quarterly, 0 for yearly).
+  startSel.selectedIndex = m.plan==="Monthly" ? 2 : (m.plan==="Quarterly" ? 1 : 0);
+  if(prevStart && Array.prototype.some.call(startSel.options,function(o){return o.value===prevStart;})) startSel.value=prevStart;
+
+  const unitSel = duesEl("du_units"), prevUnits = unitSel.value;
+  unitSel.innerHTML = "";
+  for(var n=1;n<=duesMaxUnits(m.plan);n++){
+    const el=document.createElement("option"); el.value=String(n); el.textContent=duesUnitWord(m.plan,n); unitSel.appendChild(el);
+  }
+  if(prevUnits && Number(prevUnits)<=duesMaxUnits(m.plan)) unitSel.value=prevUnits;
+
+  duesTotal(); btn.disabled=false;
+}
+function duesTotal(){
+  const m = duesMember(); if(!m) return;
+  const n = Math.max(1, parseInt(duesEl("du_units").value,10)||1);
+  duesEl("du_total").textContent = "$"+(m.rate*n);
+  duesEl("du_breakdown").textContent = duesUnitWord(m.plan,n)+" × $"+m.rate;
+}
+async function loadDues(){
+  const sel = duesEl("du_member"); if(!sel) return;
+  try{
+    const r = await fetch(DUESAPI.url+"?what=dues");
+    const info = await r.json();
+    if(!info || !info.members) throw new Error("no roster");
+    DUESAPI.info = info;
+    sel.innerHTML = "<option value=''>— select your name —</option>";
+    info.members.forEach(function(m){
+      const o=document.createElement("option"); o.value=m.id; o.textContent=m.name; sel.appendChild(o);
+    });
+    const ms = duesEl("du_method"); ms.innerHTML="";
+    (info.methods||["Venmo","Cash App","Cash","Other"]).forEach(function(x){
+      const o=document.createElement("option"); o.value=x; o.textContent=x; ms.appendChild(o);
+    });
+    if(info.rates){
+      const q=document.getElementById("rate-quarterly");
+      if(q && info.quarterlyEnabled===false) q.hidden=true;
+    }
+    const d=duesEl("du_paidon");
+    if(d && !d.value){ const t=new Date(); d.value=t.getFullYear()+"-"+("0"+(t.getMonth()+1)).slice(-2)+"-"+("0"+t.getDate()).slice(-2); }
+    sel.onchange=duesRefresh; duesEl("du_units").onchange=duesTotal;
+    duesRefresh();
+  }catch(e){
+    sel.innerHTML = "<option value=''>Roster unavailable — try again later</option>";
+    duesEl("du_msg").className="pre-msg err";
+    duesEl("du_msg").textContent="Couldn't load the roster. Reload the page, or let an officer know.";
+  }
+}
+async function submitDues(){
+  const m = duesMember(), msg = duesEl("du_msg"), btn = duesEl("du_btn");
+  if(!m){ msg.className="pre-msg err"; msg.textContent="Pick your name first."; return; }
+  const start = duesEl("du_start").value;
+  const units = Math.max(1, parseInt(duesEl("du_units").value,10)||1);
+  const method = duesEl("du_method").value;
+  const paidOn = duesEl("du_paidon").value;
+  const notes  = duesEl("du_notes").value.trim();
+  if(!paidOn){ msg.className="pre-msg err"; msg.textContent="Put in the date you sent the money."; return; }
+
+  const duesRef = "DUES-"+Date.now();
+  const total = m.rate*units;
+  btn.disabled=true; btn.textContent="Submitting…"; msg.className="pre-msg"; msg.textContent="";
+
+  let out={};
+  try{
+    const res = await fetch(DUESAPI.url,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body:JSON.stringify({kind:"dues", duesRef:duesRef, memberId:m.id, startPeriod:start,
+                           units:units, method:method, paidOn:paidOn, notes:notes})});
+    out = await res.json().catch(function(){return {};});
+  }catch(e){
+    btn.disabled=false; btn.textContent="Report Payment";
+    msg.className="pre-msg err"; msg.textContent="Couldn't reach the ledger. Nothing was recorded — try again.";
+    return;
+  }
+  btn.disabled=false; btn.textContent="Report Payment";
+
+  if(out && out.success===false && out.conflicts){
+    const already = out.conflicts.map(function(c){ return c.period+" ("+c.status+")"; }).join(", ");
+    msg.className="pre-msg err";
+    msg.textContent="Already on the books: "+already+". Nothing was recorded — change the starting period, or check with an officer.";
+    return;
+  }
+  if(!out || out.success!==true){
+    msg.className="pre-msg err";
+    msg.textContent="That didn't record"+(out&&out.error?(" ("+out.error+")"):"")+". Nothing was saved — let an officer know.";
+    return;
+  }
+
+  try{
+    await fetch("https://api.web3forms.com/submit",{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},
+      body:JSON.stringify({access_key:DUESAPI.web3formsKey, subject:"DUES REPORTED — "+m.name+" ($"+total+")",
+        from_name:"Longship Clan Brothers", botcheck:"",
+        "Type":"Dues self-report (awaiting confirmation)","Dues Ref":duesRef,"Member":m.name,
+        "Plan":m.plan,"Periods":(out.periods||[]).join(", "),"Per Period":"$"+m.rate,
+        "Total":"$"+total,"Method":method,"Paid On":paidOn,"Notes":notes||"—"})});
+  }catch(e){}
+
+  msg.className="pre-msg ok";
+  msg.innerHTML="Logged — <strong>"+duesRef+"</strong> — "+(out.periods||[]).join(", ")+
+    " ($"+total+"). It shows as <strong>Reported</strong> until an officer confirms the payment landed.";
+  duesEl("du_notes").value="";
+}
+loadDues();
 </script>
 </body>
 </html>
