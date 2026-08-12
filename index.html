@@ -155,7 +155,6 @@ footer .pay-line{color:var(--muted);font-size:14px;margin-bottom:10px}
 .confirm p{color:var(--muted);font-size:15px;margin-bottom:16px}
 .confirm .orderno{font-family:var(--head);font-size:18px;letter-spacing:.04em;background:var(--bg-near-black);border:1px solid var(--line);padding:10px 14px;margin-bottom:14px;text-align:center}
 .confirm .orderno strong{color:var(--accent)}
-.confirm .pay-now{display:block;width:100%;text-align:center;margin:4px 0 18px;font-size:18px}
 .confirm .pay-alt-label{font-family:var(--head);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-size:13px;text-align:center;margin-bottom:10px}
 .confirm .pay-note{background:rgba(227,82,5,.08);border:1px solid var(--line);border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0;font-size:13px;color:var(--muted)}
 .confirm .pay-note strong{color:var(--text)}
@@ -164,7 +163,9 @@ footer .pay-line{color:var(--muted);font-size:14px;margin-bottom:10px}
 .pay-options{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
 .pay-card{background:var(--bg-near-black);border:1px solid var(--line);padding:14px;text-align:center}
 .pay-card .pl{font-family:var(--head);text-transform:uppercase;color:var(--accent);font-size:14px;letter-spacing:.05em;margin-bottom:6px}
-.pay-card .pv{font-size:15px;word-break:break-all}
+.pay-card .pv{font-size:15px;word-break:break-all;font-weight:700}
+.pay-card .pay-qr{display:block;margin:0 0 8px}
+.pay-card .pay-qr img{width:100%;max-width:150px;margin:0 auto;background:#fff;padding:7px;border-radius:5px;display:block}
 .pay-card a.btn{display:inline-block;width:auto;padding:8px 16px;font-size:13px;margin-top:4px}
 .copy-box{background:var(--bg-near-black);border:1px solid var(--line);padding:14px;font-size:13px;color:var(--muted);white-space:pre-wrap;max-height:160px;overflow-y:auto;margin-bottom:14px;font-family:monospace}
 
@@ -227,7 +228,7 @@ footer .pay-line{color:var(--muted);font-size:14px;margin-bottom:10px}
       </a>
       <!-- Add more social links here — copy the <a class="soc"> block above (Instagram, X, etc.) and swap the href + svg path -->
     </div>
-    <div class="pay-line">We accept Square · PayPal · Venmo · Cash App</div>
+    <div class="pay-line">We accept Venmo · Cash App</div>
     <div class="small">
       &copy; <span id="year"></span> Longship Clan. All rights reserved.<br/>
       Questions about an order? Email <a href="mailto:orders@longshipclan.com">orders@longshipclan.com</a>
@@ -242,7 +243,7 @@ footer .pay-line{color:var(--muted);font-size:14px;margin-bottom:10px}
   <div class="d-foot">
     <div class="d-total"><span>Total</span><span id="cartTotal">$0</span></div>
     <button class="btn" onclick="openCheckout()">Checkout</button>
-    <div class="note">No payment is taken on this site. You'll send your order and pay by your choice of Square, PayPal, Venmo, or Cash App.</div>
+    <div class="note">No payment is taken on this site. You'll send your order, then pay by Venmo or Cash App.</div>
   </div>
 </aside>
 
@@ -263,9 +264,10 @@ const STORE = {
   web3formsKey: "743085e7-2e13-4401-bc00-d0244a150eb3", // <-- Web3Forms access key (auto-emails each order to orders@longshipclan.com)
   apiUrl: "https://script.google.com/macros/s/AKfycbxmp94oTc17acsZALtTf_2JaFF09kIe35T_psfBp4IxIJOxgUczXP5XtWumgRi_7b9mdw/exec", // Google Apps Script — inventory + order ledger
   payment: {
-    venmo:   "@LongshipClan",                     // <-- your Venmo handle
-    cashapp: "$LongshipClan",                     // <-- your Cash App $cashtag
-    square:  "https://squareup.com"               // <-- "Pay Now" button — TODO: replace with your real Square checkout/payment link
+    // Each entry renders a pay card at checkout: name on top, scannable QR in
+    // the middle, handle underneath. Drop an entry to remove that option.
+    venmo:   { handle:"@longshipclan", qr:"images/venmo_qr.png",   link:"https://www.paypal.com/qrcodes/venmocs/980d1fb0-89bd-439c-be98-106b2a1f854e" },
+    cashapp: { handle:"$longshipclan", qr:"images/cashapp_qr.png", link:"https://cash.app/$longshipclan" }
   },
   // Product fields:
   //   cat:      "coins" | "medallions" | "gear" | "stickers"  (must match a CATEGORIES key)
@@ -648,26 +650,28 @@ function val(id){ const e=document.getElementById(id); return e? e.value.trim() 
 function showConfirmation(orderText, orderRef){
   const p = STORE.payment; const total = fmt(cartTotal());
   let manual = "";
-  if(p.venmo)   manual += payCard("Venmo",    p.venmo,   false);
-  if(p.cashapp) manual += payCard("Cash App", p.cashapp, false);
+  if(p.venmo)   manual += payCard("Venmo",    p.venmo);
+  if(p.cashapp) manual += payCard("Cash App", p.cashapp);
   const ref = orderRef || "";
   document.getElementById("modalTitle").textContent = "Order Received";
   document.getElementById("modalBody").innerHTML = `
     <div class="confirm">
       <h4>Order received — now pay</h4>
       ${ref?`<div class="orderno">Order #: <strong>${ref}</strong></div>`:""}
-      <p>Your total is <strong>${total}</strong>. Pay securely by card now, or use Venmo / Cash App below.</p>
-      ${p.square?`<a class="btn pay-now" href="${p.square}" target="_blank" rel="noopener">Pay Now — Card</a>`:""}
-      ${manual?`<div class="pay-alt-label">Or pay by app</div><div class="pay-options">${manual}</div>
+      <p>Your total is <strong>${total}</strong>. Scan a code below with your phone, or send to the handle shown.</p>
+      ${manual?`<div class="pay-alt-label">Pay by app</div><div class="pay-options">${manual}</div>
       <div class="pay-note">Paying by Venmo or Cash App? Please put your <strong>Order #${ref}</strong> in the payment note so we can match your payment to this order.</div>`:""}
       <div class="copy-box" id="copyBox">${orderText.replace(/</g,"&lt;")}</div>
       <button class="btn ghost" onclick="copyOrder()">Copy Order Details</button>
     </div>`;
   cart = []; save(); renderCart(); loadAvailability();
 }
-function payCard(label, value, isLink, btnText){
-  if(isLink){ return `<div class="pay-card"><div class="pl">${label}</div><a class="btn" href="${value}" target="_blank" rel="noopener">${btnText||"Pay"}</a></div>`; }
-  return `<div class="pay-card"><div class="pl">${label}</div><div class="pv">${value}</div></div>`;
+function payCard(label, cfg){
+  if(!cfg) return "";
+  const qr = cfg.qr
+    ? `<a class="pay-qr" href="${cfg.link||"#"}" target="_blank" rel="noopener"><img src="${cfg.qr}" alt="${label} QR code for Longship Clan IVMC" loading="lazy" /></a>`
+    : "";
+  return `<div class="pay-card"><div class="pl">${label}</div>${qr}<div class="pv">${cfg.handle||""}</div></div>`;
 }
 function copyOrder(){
   const t = document.getElementById("copyBox").innerText;
