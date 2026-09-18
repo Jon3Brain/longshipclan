@@ -263,16 +263,42 @@ function tryCode(){
         : "Wrong code");
       $("code").select();
     }
-  }).catch(function(){ gateFail("Can't reach the server"); });
+  }).catch(function(err){ gateFail(scriptErrMsg(err) ? "Script needs redeploying" : "Can't reach the server"); });
 }
 
 /* ---------- api ---------- */
-function fetchAdmin(code){
+/* Apps Script answers an uncaught error with an HTML page, not JSON. Parsing
+   that as JSON throws, which used to look identical to a dead network — so
+   read the body as text first and tell the two apart honestly. */
+function apiPost(payload){
   return fetch(API, {
     method : "POST",
     headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body   : JSON.stringify({ kind:"admin", passcode: code })
-  }).then(function(r){ return r.json(); });
+    body   : JSON.stringify(payload)
+  }).then(function(r){ return r.text(); })
+    .then(function(txt){
+      try { return JSON.parse(txt); }
+      catch(e){
+        var m = /ReferenceError:\s*([A-Za-z_$][\w$]*)\s+is not defined/.exec(txt);
+        var err = new Error("NONJSON");
+        err.kind = "NONJSON";
+        err.missing = m ? m[1] : null;
+        throw err;
+      }
+    });
+}
+
+function scriptErrMsg(err){
+  if(err && err.kind === "NONJSON"){
+    return err.missing
+      ? "The Apps Script is out of date — " + err.missing + " isn't in the deployed version. Redeploy it (Manage deployments \u2192 pencil \u2192 New version)."
+      : "The Apps Script returned an error instead of data. It likely needs redeploying.";
+  }
+  return null;
+}
+
+function fetchAdmin(code){
+  return apiPost({ kind:"admin", passcode: code });
 }
 
 function load(){
@@ -284,8 +310,9 @@ function load(){
       return;
     }
     DATA = res; render();
-  }).catch(function(){
-    showErr("Couldn't reach the order backend. Check your connection and hit Refresh.");
+  }).catch(function(err){
+    showErr(scriptErrMsg(err) ||
+      "Couldn't reach the order backend. Check your connection and hit Refresh.");
   });
 }
 function showErr(msg){
@@ -515,14 +542,10 @@ function doUpdate(strip){
   var p = PENDING;
   strip.innerHTML = '<div class="q">Saving…</div>';
 
-  fetch(API, {
-    method : "POST",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body   : JSON.stringify({
-      kind:"admin-update", passcode: CODE,
-      orderRef: p.ref, status: p.to, tracking: p.tracking || ""
-    })
-  }).then(function(r){ return r.json(); }).then(function(res){
+  apiPost({
+    kind:"admin-update", passcode: CODE,
+    orderRef: p.ref, status: p.to, tracking: p.tracking || ""
+  }).then(function(res){
     PENDING = null;
     if(res && res.ok){
       DATA = res;
@@ -537,10 +560,11 @@ function doUpdate(strip){
       strip.innerHTML = '<div class="q c-err">' + esc(msg) + "</div>" +
                         '<button class="no ghost">Back</button>';
     }
-  }).catch(function(){
+  }).catch(function(err){
     PENDING = null;
-    strip.innerHTML = '<div class="q c-err">Network problem — the change was not saved.</div>' +
-                      '<button class="no ghost">Back</button>';
+    strip.innerHTML = '<div class="q c-err">' +
+      esc(scriptErrMsg(err) || "Network problem — the change was not saved.") + "</div>" +
+      '<button class="no ghost">Back</button>';
   });
 }
 
