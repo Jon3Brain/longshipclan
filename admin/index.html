@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow, noarchive" />
+<meta name="referrer" content="no-referrer" />
+<title>Longship Clan — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="icon" href="/favicon.ico" sizes="any" />
+<style>
+@font-face{font-family:'Viking';src:url('/fonts/viking.ttf') format('truetype');font-weight:normal;font-style:normal;font-display:swap}
+:root{
+  --bg:#2C2C2C; --bg-darker:#1F1B19; --bg-near-black:#100D0E; --panel:#241F1D;
+  --accent:#E35205; --accent-hi:#FF6A1A; --text:#FFFFFF; --muted:#C1C0C0; --line:#3a3330;
+  --ok:#4FB477; --warn:#E3B505; --bad:#D1495B;
+  --head:'Viking','Oswald',sans-serif; --body:'Arial','Helvetica Neue',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--head);text-transform:uppercase;letter-spacing:.04em;line-height:1.05}
+a{color:var(--accent);text-decoration:none}
+a:hover{color:var(--accent-hi)}
+.container{max-width:1080px;margin:0 auto;padding:0 20px}
+
+/* ---- gate ---- */
+.gate{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 20px;
+  background:linear-gradient(rgba(16,13,14,.88),rgba(16,13,14,.95)),repeating-linear-gradient(45deg,#1a1614 0 22px,#161210 22px 44px)}
+.gate h1{font-size:clamp(32px,7vw,52px);color:var(--accent)}
+.gate p{color:var(--muted);margin:10px 0 26px;font-style:italic}
+.gate .box{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.gate input{background:var(--bg-near-black);border:2px solid var(--line);color:var(--text);font-size:20px;letter-spacing:.25em;
+  text-align:center;padding:12px 16px;width:240px;font-family:var(--head)}
+.gate input:focus{outline:none;border-color:var(--accent)}
+.gate .err{color:var(--accent-hi);min-height:22px;margin-top:14px;font-family:var(--head);text-transform:uppercase;letter-spacing:.05em;font-size:14px}
+.shake{animation:shake .35s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+
+button,.btn{background:var(--accent);color:#100D0E;font-family:var(--head);text-transform:uppercase;font-weight:700;
+  letter-spacing:.06em;padding:11px 24px;font-size:15px;border:2px solid var(--accent);cursor:pointer;transition:.15s}
+button:hover,.btn:hover{background:transparent;color:var(--accent)}
+button.ghost{background:transparent;color:var(--muted);border-color:var(--line)}
+button.ghost:hover{color:var(--accent);border-color:var(--accent)}
+
+/* ---- chrome ---- */
+header{background:var(--bg-near-black);border-bottom:2px solid var(--accent);position:sticky;top:0;z-index:20}
+.nav{display:flex;align-items:center;justify-content:space-between;height:66px;gap:12px}
+.brand{display:flex;align-items:center;gap:11px}
+.brand .name{font-family:var(--head);font-weight:700;font-size:21px;letter-spacing:.06em;color:var(--text)}
+.brand .name span{color:var(--accent)}
+.nav .tools{display:flex;align-items:center;gap:10px}
+.nav .tools a{font-family:var(--head);text-transform:uppercase;font-size:13px;letter-spacing:.05em}
+.nav .tools button{padding:7px 14px;font-size:12px}
+.page-head{padding:34px 0 6px}
+.page-head h1{font-size:clamp(30px,5.5vw,46px)}
+.page-head h1 span{color:var(--accent)}
+.page-head .sub{color:var(--muted);font-style:italic;margin-top:4px;font-size:14px}
+
+/* ---- sales tiles ---- */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin:26px 0 8px}
+.tile{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);padding:16px 18px}
+.tile .k{font-family:var(--head);text-transform:uppercase;letter-spacing:.07em;font-size:12px;color:var(--muted)}
+/* Viking face draws 9 and 0 almost identically — digits always use the body face */
+.num{font-family:var(--body);font-weight:700;letter-spacing:0}
+.tile .v{font-family:var(--body);font-weight:700;font-size:30px;margin-top:6px;letter-spacing:-.01em}
+.tile .n{font-size:12px;color:var(--muted);margin-top:2px}
+.tile.owed{border-left-color:var(--warn)}
+.tile.owed .v{color:var(--warn)}
+.tile.ship{border-left-color:var(--ok)}
+.tile.ship .v{color:var(--ok)}
+
+.weeks{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-top:14px}
+.weeks h3{font-size:14px;color:var(--muted);margin-bottom:8px}
+.weeks table{width:100%;border-collapse:collapse;font-size:14px}
+.weeks td{padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.weeks td:last-child{text-align:right;font-weight:700}
+.weeks tr:last-child td{border-bottom:none}
+.note{font-size:12.5px;color:var(--muted);margin-top:10px;font-style:italic}
+
+/* ---- tabs ---- */
+.tabs{display:flex;gap:2px;margin:30px 0 0;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.tabs button{background:transparent;border:1px solid var(--line);border-bottom:none;color:var(--muted);
+  padding:10px 18px;font-size:14px;letter-spacing:.05em}
+.tabs button:hover{color:var(--accent)}
+.tabs button[aria-selected="true"]{background:var(--panel);color:var(--accent);border-color:var(--accent);border-bottom:1px solid var(--panel);margin-bottom:-1px}
+.tabs button .c{display:inline-block;background:var(--line);color:var(--text);border-radius:10px;padding:1px 7px;font-size:11px;margin-left:7px;vertical-align:1px;font-family:var(--body);font-weight:700}
+.tabs button[aria-selected="true"] .c{background:var(--accent);color:#100D0E}
+
+.filter{display:flex;gap:10px;margin:18px 0;flex-wrap:wrap}
+.filter input{flex:1;min-width:200px;background:var(--bg-near-black);border:1px solid var(--line);color:var(--text);
+  padding:10px 13px;font-size:14px;font-family:var(--body)}
+.filter input:focus{outline:none;border-color:var(--accent)}
+
+/* ---- order cards ---- */
+.orders{display:grid;gap:12px;padding-bottom:60px}
+.card{background:var(--panel);border:1px solid var(--line);padding:15px 17px}
+.card.pending{border-left:4px solid var(--warn)}
+.card.ready{border-left:4px solid var(--ok)}
+.card.done{border-left:4px solid var(--line)}
+.card.void{border-left:4px solid var(--bad);opacity:.6}
+.c-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.c-buyer{font-family:var(--head);font-size:19px;letter-spacing:.03em}
+.c-amt{font-weight:700;font-size:19px;white-space:nowrap}
+.c-meta{color:var(--muted);font-size:12.5px;margin-top:3px;word-break:break-word}
+.c-meta code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:var(--muted)}
+.badge{display:inline-block;font-family:var(--head);text-transform:uppercase;font-size:11px;letter-spacing:.06em;
+  padding:2px 9px;border:1px solid currentColor;margin-left:8px;vertical-align:2px}
+.b-pending{color:var(--warn)} .b-ready{color:var(--ok)} .b-done{color:var(--muted)} .b-void{color:var(--bad)}
+.b-gift{color:var(--accent-hi)} .b-pickup{color:var(--accent-hi)}
+.c-items{margin-top:10px;font-size:14px}
+.c-items div{display:flex;justify-content:space-between;gap:10px;padding:2px 0;color:var(--muted)}
+.c-items span:last-child{white-space:nowrap;color:var(--text)}
+.c-ship{margin-top:10px;padding:9px 11px;background:var(--bg-near-black);border:1px solid var(--line);font-size:13.5px;display:flex;
+  justify-content:space-between;gap:10px;align-items:flex-start}
+.c-ship.none{color:var(--muted);font-style:italic}
+.c-ship button{padding:4px 10px;font-size:11px;flex:none}
+.c-notes{margin-top:8px;font-size:12.5px;color:var(--muted);font-style:italic}
+.empty{text-align:center;color:var(--muted);padding:50px 20px;font-style:italic}
+.err-box{background:rgba(209,73,91,.12);border:1px solid var(--bad);color:#ffb9c2;padding:14px 16px;margin:20px 0;font-size:14px}
+.loading{text-align:center;color:var(--muted);padding:60px 20px;font-family:var(--head);letter-spacing:.1em;text-transform:uppercase}
+footer{border-top:1px solid var(--line);padding:18px 0 40px;color:var(--muted);font-size:12px;text-align:center}
+@media(max-width:620px){ .c-amt{font-size:17px} .tile .v{font-size:25px} }
+@media(max-width:560px){
+  .nav{height:58px;gap:8px}
+  .brand .name{font-size:16px}
+  .nav .tools{gap:7px}
+  .nav .tools a{font-size:11px}
+  .nav .tools button{padding:6px 9px;font-size:11px}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= GATE ================= -->
+<div class="gate" id="gate">
+  <h1>Admin</h1>
+  <p>Officers only. This code is checked on the server.</p>
+  <div class="box">
+    <input id="code" type="password" inputmode="text" autocomplete="current-password" placeholder="CODE" aria-label="Admin code" />
+    <button id="enter">Enter</button>
+  </div>
+  <div class="err" id="gateErr" role="alert"></div>
+  <p style="margin-top:28px"><a href="/">&larr; Back to the store</a></p>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app" hidden>
+  <header>
+    <div class="container nav">
+      <div class="brand"><div class="name">LONGSHIP <span>ADMIN</span></div></div>
+      <div class="tools">
+        <a href="/">Store</a>
+        <a href="/brothers/">Brothers</a>
+        <button class="ghost" id="refresh">Refresh</button>
+        <button class="ghost" id="lock">Lock</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="page-head">
+      <h1>Store <span>Desk</span></h1>
+      <div class="sub" id="stamp"></div>
+    </div>
+
+    <div id="errBox" class="err-box" hidden></div>
+    <div id="loading" class="loading">Loading…</div>
+
+    <div id="body" hidden>
+      <div class="tiles" id="tiles"></div>
+      <div class="weeks" id="weeks" hidden></div>
+      <div class="note" id="salesNote"></div>
+
+      <div class="tabs" id="tabs" role="tablist"></div>
+      <div class="filter">
+        <input id="q" type="search" placeholder="Filter by name, order #, item, email…" aria-label="Filter orders" />
+      </div>
+      <div class="orders" id="orders"></div>
+    </div>
+  </div>
+
+  <footer class="container">Longship Clan IVMC · figures read live from the Store Tracker sheet</footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+var API = "https://script.google.com/macros/s/AKfycbxmp94oTc17acsZALtTf_2JaFF09kIe35T_psfBp4IxIJOxgUczXP5XtWumgRi_7b9mdw/exec";
+var SKEY = "lc_admin_code";
+
+var DATA = null, TAB = "toShip", CODE = "";
+
+/* ---------- helpers ---------- */
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, function(c){
+  return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]; }); }
+function money(n){ return "$" + Number(n||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function money0(n){ return "$" + Math.round(Number(n||0)).toLocaleString("en-US"); }
+function fdate(iso){
+  if(!iso) return "—";
+  var d = new Date(iso); if(isNaN(d)) return "—";
+  return d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+}
+function daysAgo(iso){
+  if(!iso) return null;
+  var d = new Date(iso); if(isNaN(d)) return null;
+  return Math.floor((Date.now()-d.getTime())/86400000);
+}
+
+/* ---------- gate ---------- */
+function gateFail(msg){
+  $("gateErr").textContent = msg;
+  $("gate").classList.remove("shake"); void $("gate").offsetWidth; $("gate").classList.add("shake");
+}
+function unlock(code){
+  CODE = code;
+  $("gate").hidden = true; $("app").hidden = false; window.scrollTo(0,0);
+  load();
+}
+function lock(){
+  try{ sessionStorage.removeItem(SKEY); }catch(e){}
+  CODE = ""; location.reload();
+}
+$("enter").addEventListener("click", tryCode);
+$("code").addEventListener("keydown", function(e){ if(e.key==="Enter") tryCode(); });
+
+function tryCode(){
+  var v = $("code").value.trim();
+  if(!v){ gateFail("Enter the code"); return; }
+  $("gateErr").textContent = "Checking…";
+  fetchAdmin(v).then(function(res){
+    if(res && res.ok){
+      try{ sessionStorage.setItem(SKEY, v); }catch(e){}
+      DATA = res; CODE = v;
+      $("gate").hidden = true; $("app").hidden = false; window.scrollTo(0,0);
+      render();
+    } else {
+      gateFail(res && res.error === "NOT_CONFIGURED"
+        ? "Server passcode not set yet"
+        : "Wrong code");
+      $("code").select();
+    }
+  }).catch(function(){ gateFail("Can't reach the server"); });
+}
+
+/* ---------- api ---------- */
+function fetchAdmin(code){
+  return fetch(API, {
+    method : "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body   : JSON.stringify({ kind:"admin", passcode: code })
+  }).then(function(r){ return r.json(); });
+}
+
+function load(){
+  $("loading").hidden = false; $("body").hidden = true; $("errBox").hidden = true;
+  fetchAdmin(CODE).then(function(res){
+    if(!res || !res.ok){
+      if(res && res.error === "BAD_CODE"){ lock(); return; }
+      showErr("The server returned an error" + (res && res.error ? " (" + res.error + ")" : "") + ".");
+      return;
+    }
+    DATA = res; render();
+  }).catch(function(){
+    showErr("Couldn't reach the order backend. Check your connection and hit Refresh.");
+  });
+}
+function showErr(msg){
+  $("loading").hidden = true;
+  $("errBox").hidden = false; $("errBox").textContent = msg;
+}
+
+$("refresh").addEventListener("click", load);
+$("lock").addEventListener("click", lock);
+
+/* ---------- render ---------- */
+function render(){
+  $("loading").hidden = true; $("body").hidden = false; $("errBox").hidden = true;
+  $("stamp").textContent = "Live from the Store Tracker · " +
+    new Date(DATA.generatedAt).toLocaleString("en-US",{dateStyle:"medium",timeStyle:"short"});
+  renderSales();
+  renderTabs();
+  renderOrders();
+}
+
+function renderSales(){
+  var s = DATA.sales;
+  var t = [];
+  t.push(tile("", 'Sales · last <span class="num">' + DATA.windowDays + '</span> days', money0(s.collected),
+        s.paidOrders + " order" + (s.paidOrders===1?"":"s") + " paid"));
+  t.push(tile("owed", "Unpaid — all time", money0(s.outstandingAll),
+        s.unpaidOrdersAll + " order" + (s.unpaidOrdersAll===1?"":"s") + " waiting"));
+  t.push(tile("ship", "Needs shipping", String(DATA.counts.toShip),
+        "paid, not yet sent"));
+  $("tiles").innerHTML = t.join("");
+
+  var w = s.byWeek || [];
+  if(w.length){
+    var rows = w.slice().reverse().map(function(x){
+      var d = new Date(x.week + "T12:00:00");
+      return "<tr><td>Week of " + esc(d.toLocaleDateString("en-US",{month:"short",day:"numeric"})) +
+             "</td><td>" + money0(x.amount) + "</td></tr>";
+    }).join("");
+    $("weeks").hidden = false;
+    $("weeks").innerHTML = "<h3>By week — money collected</h3><table>" + rows + "</table>";
+  } else {
+    $("weeks").hidden = true;
+  }
+
+  var notes = [];
+  if(s.gifted)    notes.push(s.giftOrders + " gifted order" + (s.giftOrders===1?"":"s") +
+                             " (" + money0(s.gifted) + ") excluded from sales.");
+  if(s.cancelled) notes.push("Cancelled orders (" + money0(s.cancelled) + ") excluded.");
+  notes.push("Sales counts orders marked Paid/Ready or Completed/Shipped.");
+  $("salesNote").textContent = notes.join(" ");
+}
+
+function tile(cls, k, v, n){
+  return '<div class="tile ' + cls + '"><div class="k">' + k + '</div>' +
+         '<div class="v">' + esc(v) + '</div><div class="n">' + esc(n) + '</div></div>';
+}
+
+var TABS = [
+  { id:"toShip", label:"Needs Shipping" },
+  { id:"unpaid", label:"Unpaid" },
+  { id:"paid",   label:"Paid" },
+  { id:"orders", label:"All Orders" }
+];
+function renderTabs(){
+  $("tabs").innerHTML = TABS.map(function(t){
+    var n = (DATA[t.id] || []).length;
+    return '<button role="tab" data-tab="' + t.id + '" aria-selected="' + (TAB===t.id) + '">' +
+           esc(t.label) + '<span class="c">' + n + '</span></button>';
+  }).join("");
+  Array.prototype.forEach.call($("tabs").querySelectorAll("button"), function(b){
+    b.addEventListener("click", function(){ TAB = b.dataset.tab; renderTabs(); renderOrders(); });
+  });
+}
+
+$("q").addEventListener("input", renderOrders);
+
+function renderOrders(){
+  var list = (DATA[TAB] || []).slice();
+  var q = $("q").value.trim().toLowerCase();
+  if(q){
+    list = list.filter(function(o){
+      var hay = [o.ref,o.buyer,o.email,o.phone,o.shipTo,o.notes,o.status,
+                 o.items.map(function(i){return i.item;}).join(" ")].join(" ").toLowerCase();
+      return hay.indexOf(q) !== -1;
+    });
+  }
+  if(!list.length){
+    $("orders").innerHTML = '<div class="empty">' +
+      (q ? "Nothing matches that filter." : "Nothing here right now.") + "</div>";
+    return;
+  }
+  $("orders").innerHTML = list.map(card).join("");
+  Array.prototype.forEach.call($("orders").querySelectorAll("[data-copy]"), function(b){
+    b.addEventListener("click", function(){
+      var txt = b.getAttribute("data-copy");
+      (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject())
+        .then(function(){ b.textContent = "Copied"; setTimeout(function(){ b.textContent = "Copy"; }, 1400); })
+        .catch(function(){ b.textContent = "—"; });
+    });
+  });
+}
+
+function statusClass(s){
+  if(s === "Pending Payment")    return ["pending","b-pending","Unpaid"];
+  if(s === "Paid/Ready")         return ["ready","b-ready","Paid · ship it"];
+  if(s === "Completed/Shipped")  return ["done","b-done","Shipped"];
+  if(s === "Cancelled")          return ["void","b-void","Cancelled"];
+  return ["done","b-done", s || "—"];
+}
+
+function card(o){
+  var sc = statusClass(o.status);
+  var age = daysAgo(o.date);
+  var h = [];
+  h.push('<div class="card ' + sc[0] + '">');
+  h.push('<div class="c-top"><div>');
+  h.push('<span class="c-buyer">' + esc(o.buyer || "(no name)") + "</span>");
+  h.push('<span class="badge ' + sc[1] + '">' + esc(sc[2]) + "</span>");
+  if(o.isGift)   h.push('<span class="badge b-gift">Gift</span>');
+  if(o.isPickup) h.push('<span class="badge b-pickup">Pickup</span>');
+  h.push('<div class="c-meta"><code>' + esc(o.ref) + "</code> · " + esc(fdate(o.date)));
+  if(age !== null && age >= 0) h.push(" · " + age + "d ago");
+  h.push("</div>");
+  var contact = [];
+  if(o.email && o.email.indexOf("@") !== -1) contact.push('<a href="mailto:' + esc(o.email) + '">' + esc(o.email) + "</a>");
+  if(o.phone && /\d{7}/.test(o.phone.replace(/\D/g,""))) contact.push('<a href="tel:' + esc(o.phone.replace(/[^0-9+]/g,"")) + '">' + esc(o.phone) + "</a>");
+  if(contact.length) h.push('<div class="c-meta">' + contact.join(" · ") + "</div>");
+  h.push('</div><div class="c-amt">' + money(o.amount) + "</div></div>");
+
+  h.push('<div class="c-items">');
+  o.items.forEach(function(i){
+    var nm = esc(i.item || i.itemId) + (i.serial ? ' <span style="opacity:.7">#' + esc(i.serial) + "</span>" : "") +
+             (i.qty > 1 ? " &times;" + i.qty : "");
+    h.push("<div><span>" + nm + "</span><span>" + money(i.total) + "</span></div>");
+  });
+  h.push("</div>");
+
+  if(o.hasAddress){
+    h.push('<div class="c-ship"><span>' + esc(o.shipTo) + "</span>" +
+           '<button class="ghost" data-copy="' + esc(o.shipTo) + '">Copy</button></div>');
+  } else if(o.isPickup){
+    h.push('<div class="c-ship none">Pickup / in person — no shipping address.</div>');
+  } else {
+    h.push('<div class="c-ship none">No shipping address on file.</div>');
+  }
+
+  if(o.tracking) h.push('<div class="c-meta" style="margin-top:8px">Tracking: <code>' + esc(o.tracking) + "</code></div>");
+  if(o.notes)    h.push('<div class="c-notes">' + esc(o.notes) + "</div>");
+  h.push("</div>");
+  return h.join("");
+}
+
+/* ---------- boot ---------- */
+(function boot(){
+  var saved = null;
+  try{ saved = sessionStorage.getItem(SKEY); }catch(e){}
+  if(saved){ unlock(saved); } else { $("code").focus(); }
+})();
+
+})();
+</script>
+</body>
+</html>
