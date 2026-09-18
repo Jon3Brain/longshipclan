@@ -98,6 +98,7 @@ header{background:var(--bg-near-black);border-bottom:2px solid var(--accent);pos
 .card.pending{border-left:4px solid var(--warn)}
 .card.ready{border-left:4px solid var(--ok)}
 .card.done{border-left:4px solid var(--line)}
+.card.gift{border-left:4px solid var(--accent-hi)}
 .card.void{border-left:4px solid var(--bad);opacity:.6}
 .c-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
 .c-buyer{font-family:var(--head);font-size:19px;letter-spacing:.03em}
@@ -419,6 +420,7 @@ function statusClass(s){
   if(s === "Pending Payment")    return ["pending","b-pending","Unpaid"];
   if(s === "Paid/Ready")         return ["ready","b-ready","Paid · ship it"];
   if(s === "Completed/Shipped")  return ["done","b-done","Shipped"];
+  if(s === "Gifted/Given")       return ["gift","b-gift","Gifted"];
   if(s === "Cancelled")          return ["void","b-void","Cancelled"];
   return ["done","b-done", s || "—"];
 }
@@ -431,7 +433,7 @@ function card(o){
   h.push('<div class="c-top"><div>');
   h.push('<span class="c-buyer">' + esc(o.buyer || "(no name)") + "</span>");
   h.push('<span class="badge ' + sc[1] + '">' + esc(sc[2]) + "</span>");
-  if(o.isGift)   h.push('<span class="badge b-gift">Gift</span>');
+  if(o.isGift && o.status !== "Gifted/Given") h.push('<span class="badge b-gift">Gift</span>');
   if(o.isPickup) h.push('<span class="badge b-pickup">Pickup</span>');
   h.push('<div class="c-meta"><code>' + esc(o.ref) + "</code> · " + esc(fdate(o.date)));
   if(age !== null && age >= 0) h.push(" · " + age + "d ago");
@@ -468,11 +470,17 @@ function card(o){
 
 /* ---------- status changes ---------- */
 
-var STATUSES = ["Pending Payment","Paid/Ready","Completed/Shipped","Cancelled"];
+/* The server sends the script's own STATUS_OPTIONS, so adding a status in
+   Code.gs reaches this dropdown with no page change. The literal below is only
+   a fallback for an older deployed script. */
+var STATUS_FALLBACK = ["Pending Payment","Paid/Ready","Completed/Shipped","Gifted/Given","Cancelled"];
+function statuses(){
+  return (DATA && DATA.statusOptions && DATA.statusOptions.length) ? DATA.statusOptions : STATUS_FALLBACK;
+}
 var PENDING  = null;   // ref currently awaiting confirmation
 
 function actions(o){
-  var opts = STATUSES.map(function(st){
+  var opts = statuses().map(function(st){
     return '<option value="' + esc(st) + '"' + (st===o.status?' selected':'') + ">" + esc(st) + "</option>";
   }).join("");
   return '<div class="c-act" data-ref="' + esc(o.ref) + '" data-cur="' + esc(o.status) + '">' +
@@ -513,6 +521,7 @@ function shortStatus(s){
   if(s==="Completed/Shipped") return "Shipped";
   if(s==="Paid/Ready")        return "Paid";
   if(s==="Pending Payment")   return "Unpaid";
+  if(s==="Gifted/Given")      return "Gifted";
   return s;
 }
 
@@ -530,6 +539,9 @@ function askConfirm(box){
             "</b> to <b>" + esc(next) + "</b>?" +
             (trk ? '<span class="free" style="color:var(--muted)">Tracking: ' + esc(trk) + "</span>" : "") +
             (danger ? '<span class="free">This frees the serial back to the store — it will go back on sale.</span>' : "") +
+            (next === "Gifted/Given"
+              ? '<span class="free" style="color:var(--muted)">Counts as completed with no income. The item stays out of inventory.</span>'
+              : "") +
             "</div>" +
             '<button class="yes">Confirm</button>' +
             '<button class="no ghost">Back</button>' +
