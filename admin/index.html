@@ -116,6 +116,26 @@ header{background:var(--bg-near-black);border-bottom:2px solid var(--accent);pos
 .c-ship.none{color:var(--muted);font-style:italic}
 .c-ship button{padding:4px 10px;font-size:11px;flex:none}
 .c-notes{margin-top:8px;font-size:12.5px;color:var(--muted);font-style:italic}
+.c-act{margin-top:11px;padding-top:11px;border-top:1px solid var(--line);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.c-act select{background:var(--bg-near-black);border:1px solid var(--line);color:var(--text);padding:7px 9px;font-size:13px;font-family:var(--body)}
+.c-act select:focus{outline:none;border-color:var(--accent)}
+.c-act input.trk{background:var(--bg-near-black);border:1px solid var(--line);color:var(--text);padding:7px 9px;font-size:13px;
+  font-family:var(--body);flex:1;min-width:150px}
+.c-act input.trk:focus{outline:none;border-color:var(--accent)}
+.c-act button{padding:7px 14px;font-size:12px}
+.c-act button:disabled{opacity:.35;cursor:not-allowed;background:transparent;color:var(--muted);border-color:var(--line)}
+.c-confirm{margin-top:11px;padding:11px 13px;border-top:1px solid var(--line);background:rgba(227,82,5,.09);
+  display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.c-confirm .q{flex:1;min-width:190px;font-size:13.5px}
+.c-confirm .q b{font-family:var(--body)}
+.c-confirm.danger{background:rgba(209,73,91,.13)}
+.c-confirm .free{display:block;color:var(--bad);font-size:12.5px;margin-top:3px;font-style:italic}
+.c-confirm button{padding:7px 14px;font-size:12px}
+.c-err{margin-top:9px;color:#ffb9c2;font-size:12.5px}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:26px;background:var(--bg-near-black);border:2px solid var(--accent);
+  color:var(--text);padding:12px 20px;font-family:var(--head);letter-spacing:.05em;text-transform:uppercase;font-size:14px;z-index:60;
+  opacity:0;pointer-events:none;transition:opacity .2s}
+#toast.show{opacity:1}
 .empty{text-align:center;color:var(--muted);padding:50px 20px;font-style:italic}
 .err-box{background:rgba(209,73,91,.12);border:1px solid var(--bad);color:#ffb9c2;padding:14px 16px;margin:20px 0;font-size:14px}
 .loading{text-align:center;color:var(--muted);padding:60px 20px;font-family:var(--head);letter-spacing:.1em;text-transform:uppercase}
@@ -180,6 +200,7 @@ footer{border-top:1px solid var(--line);padding:18px 0 40px;color:var(--muted);f
     </div>
   </div>
 
+  <div id="toast" role="status" aria-live="polite"></div>
   <footer class="container">Longship Clan IVMC · figures read live from the Store Tracker sheet</footer>
 </div>
 
@@ -413,8 +434,122 @@ function card(o){
 
   if(o.tracking) h.push('<div class="c-meta" style="margin-top:8px">Tracking: <code>' + esc(o.tracking) + "</code></div>");
   if(o.notes)    h.push('<div class="c-notes">' + esc(o.notes) + "</div>");
+  h.push(actions(o));
   h.push("</div>");
   return h.join("");
+}
+
+/* ---------- status changes ---------- */
+
+var STATUSES = ["Pending Payment","Paid/Ready","Completed/Shipped","Cancelled"];
+var PENDING  = null;   // ref currently awaiting confirmation
+
+function actions(o){
+  var opts = STATUSES.map(function(st){
+    return '<option value="' + esc(st) + '"' + (st===o.status?' selected':'') + ">" + esc(st) + "</option>";
+  }).join("");
+  return '<div class="c-act" data-ref="' + esc(o.ref) + '" data-cur="' + esc(o.status) + '">' +
+           '<select class="st" aria-label="Status for ' + esc(o.ref) + '">' + opts + "</select>" +
+           '<input class="trk" type="text" placeholder="Tracking # (optional)" hidden aria-label="Tracking number" />' +
+           '<button class="go" disabled>Change</button>' +
+         "</div>";
+}
+
+/* one delegated listener each, so re-rendering the list never loses handlers */
+$("orders").addEventListener("change", function(e){
+  var sel = e.target.closest ? e.target.closest("select.st") : null;
+  if(!sel) return;
+  var box = sel.closest(".c-act");
+  var cur = box.dataset.cur, next = sel.value;
+  var trk = box.querySelector("input.trk");
+  var go  = box.querySelector("button.go");
+  trk.hidden = (next !== "Completed/Shipped");
+  if(next === cur){ go.disabled = true; go.textContent = "Change"; }
+  else { go.disabled = false; go.textContent = "Change to " + shortStatus(next); }
+});
+
+$("orders").addEventListener("click", function(e){
+  var t = e.target;
+  if(!t.closest) return;
+
+  var go = t.closest("button.go");
+  if(go){ askConfirm(go.closest(".c-act")); return; }
+
+  var no = t.closest("button.no");
+  if(no){ renderOrders(); return; }
+
+  var yes = t.closest("button.yes");
+  if(yes){ doUpdate(yes.closest(".c-confirm")); return; }
+});
+
+function shortStatus(s){
+  if(s==="Completed/Shipped") return "Shipped";
+  if(s==="Paid/Ready")        return "Paid";
+  if(s==="Pending Payment")   return "Unpaid";
+  return s;
+}
+
+function askConfirm(box){
+  var ref  = box.dataset.ref, cur = box.dataset.cur;
+  var next = box.querySelector("select.st").value;
+  var trk  = box.querySelector("input.trk").value.trim();
+  if(next === cur) return;
+
+  PENDING = { ref: ref, from: cur, to: next, tracking: trk };
+
+  var danger = (next === "Cancelled");
+  var h = '<div class="c-confirm' + (danger?" danger":"") + '" data-ref="' + esc(ref) + '">' +
+            '<div class="q">Change <b>' + esc(ref) + "</b> from <b>" + esc(cur) +
+            "</b> to <b>" + esc(next) + "</b>?" +
+            (trk ? '<span class="free" style="color:var(--muted)">Tracking: ' + esc(trk) + "</span>" : "") +
+            (danger ? '<span class="free">This frees the serial back to the store — it will go back on sale.</span>' : "") +
+            "</div>" +
+            '<button class="yes">Confirm</button>' +
+            '<button class="no ghost">Back</button>' +
+          "</div>";
+  box.outerHTML = h;
+}
+
+function doUpdate(strip){
+  if(!PENDING) return;
+  var p = PENDING;
+  strip.innerHTML = '<div class="q">Saving…</div>';
+
+  fetch(API, {
+    method : "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body   : JSON.stringify({
+      kind:"admin-update", passcode: CODE,
+      orderRef: p.ref, status: p.to, tracking: p.tracking || ""
+    })
+  }).then(function(r){ return r.json(); }).then(function(res){
+    PENDING = null;
+    if(res && res.ok){
+      DATA = res;
+      render();
+      toast(shortStatus(p.from) + " → " + shortStatus(p.to) + " · " + p.ref);
+    } else {
+      var msg = "Couldn't save that change.";
+      if(res && res.error === "BAD_CODE")      msg = "Your session expired — lock and sign in again.";
+      if(res && res.error === "BUSY")          msg = "The sheet was busy. Try again in a moment.";
+      if(res && res.error === "REF_NOT_FOUND") msg = "That order is no longer in the sheet.";
+      if(res && res.error === "BAD_STATUS")    msg = "That status isn't one the sheet accepts.";
+      strip.innerHTML = '<div class="q c-err">' + esc(msg) + "</div>" +
+                        '<button class="no ghost">Back</button>';
+    }
+  }).catch(function(){
+    PENDING = null;
+    strip.innerHTML = '<div class="q c-err">Network problem — the change was not saved.</div>' +
+                      '<button class="no ghost">Back</button>';
+  });
+}
+
+var toastT = null;
+function toast(msg){
+  var el = $("toast");
+  el.textContent = msg; el.classList.add("show");
+  clearTimeout(toastT);
+  toastT = setTimeout(function(){ el.classList.remove("show"); }, 2600);
 }
 
 /* ---------- boot ---------- */
